@@ -11,6 +11,17 @@ Use your product's conversation, selected artifact and user preferences as conte
 
 ## Quick start
 
+Open your product repository in your coding agent and paste:
+
+```text
+Read https://github.com/cloneisyou/clone-sdk/blob/main/docs/start.md and integrate Clone SDK into this product.
+```
+
+Your agent will handle setup, integration and verification. You may need to complete login or consent.
+
+<details>
+<summary>Manual setup</summary>
+
 Node **22.13+**, ESM. React integrations support **18 and 19**. The headless controller and server client do not require React.
 
 Download the package and checksum from [release v0.3.1](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.3.1), then verify and install:
@@ -57,11 +68,9 @@ export function Composer({ threadId, contextRevision }: {
 
 Implement `/api/clone/predict` in your authenticated backend using `CloneClient` from `@clone-ai/tab-completion/server`. Derive the user ID from the server session. Keep the app key on the server, never in browser code or `VITE_*` / `NEXT_PUBLIC_*` variables. Pass your real conversation and advance `context_revision` when it changes.
 
-For the complete integration, give your coding agent this prompt:
+For complete setup and verification, follow the [integration guide](docs/start.md).
 
-> Read https://github.com/cloneisyou/clone-sdk/blob/main/docs/start.md and integrate Clone into this product.
-
-The [integration guide](docs/start.md) covers app registration, secure key storage, implementation and verification. Login and required consent may need your participation; integration does not authorize paid activation or deployment.
+</details>
 
 ## Try the demo
 

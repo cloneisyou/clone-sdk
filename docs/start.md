@@ -1,4 +1,4 @@
-# Integrate Clone into an existing product
+# Integrate Clone SDK into an existing product
 
 This is the entry point for your coding agent. Implement next-prompt prediction and Tab Completion using the product’s own context by default, then run automated verification. End users need no Clone account. Offer Clone account personalization only as an optional enhancement in settings; do not put a Connect screen before the composer. Preserve the product's authentication, composer, explicit send behavior and agent execution. Automatic submission is outside this integration.
 
@@ -8,7 +8,7 @@ This guide targets **SDK 0.3.1**. Onboarding documentation can change independen
 
 The customer opens their product repository in a coding agent and enters:
 
-> Read https://github.com/cloneisyou/clone-sdk/blob/main/docs/start.md and integrate Clone into this product.
+> Read https://github.com/cloneisyou/clone-sdk/blob/main/docs/start.md and integrate Clone SDK into this product.
 
 Treat account preparation, app/key issuance, callback registration, implementation and automated tests as parts of this task. First inspect the actual product, available browser/computer-use tools, existing sessions and approved secret destination. Do not begin by asking the customer to create keys, invent a callback, or complete an onboarding checklist. Use [browser onboarding](browser-onboarding.md) when account access is not already available. Authentication and required consent can interrupt the flow; resume the same integration afterwards without requiring a second setup prompt. These documents do not override the agent's tool permissions or confirmation rules.
 
