@@ -6,31 +6,31 @@ During 0.x, breaking public contract changes increment the minor version; compat
 
 ## Download and install
 
-The current release is [v0.3.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.3.0). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
+The current release is [v0.3.1](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.3.1). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
 
 When the repository is public, no GitHub credential is needed:
 
 ```sh
 mkdir -p vendor/clone-sdk
-release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.3.0
-curl --fail --location "$release_url/clone-ai-tab-completion-0.3.0.tgz" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.3.0.tgz
-curl --fail --location "$release_url/clone-ai-tab-completion-0.3.0.tgz.sha256" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.3.0.tgz.sha256
+release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.3.1
+curl --fail --location "$release_url/clone-ai-tab-completion-0.3.1.tgz" \
+  --output vendor/clone-sdk/clone-ai-tab-completion-0.3.1.tgz
+curl --fail --location "$release_url/clone-ai-tab-completion-0.3.1.tgz.sha256" \
+  --output vendor/clone-sdk/clone-ai-tab-completion-0.3.1.tgz.sha256
 ```
 
 If GitHub reports restricted access, use an account with repository read access:
 
 ```sh
-gh release download v0.3.0 --repo cloneisyou/clone-sdk \
-  --pattern 'clone-ai-tab-completion-0.3.0.tgz*' --dir vendor/clone-sdk
+gh release download v0.3.1 --repo cloneisyou/clone-sdk \
+  --pattern 'clone-ai-tab-completion-0.3.1.tgz*' --dir vendor/clone-sdk
 ```
 
 Then verify and install with your existing package manager:
 
 ```sh
-(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.3.0.tgz.sha256)
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.3.0.tgz
+(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.3.1.tgz.sha256)
+npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.3.1.tgz
 ```
 
 On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile. Do not put access tokens in package URLs or lockfiles.

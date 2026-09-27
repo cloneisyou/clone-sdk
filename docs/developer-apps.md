@@ -1,6 +1,6 @@
 # Self-service developer apps
 
-Use [Developer apps](https://clone.is/developer/apps) for the browser flow. A coding agent can perform the same operations over HTTPS at `https://api.clone.is/v1/developer/apps`. This management API is separate from the SDK prediction client. SDK 0.3.0 adds PAYG usage types with a nullable spending cap; prediction requests and runtime exports are unchanged. Request and response schemas are also available in the hosted API's `/openapi.json` under the `Developer apps` tag.
+Use [Developer apps](https://clone.is/developer/apps) for the browser flow. A coding agent can perform the same operations over HTTPS at `https://api.clone.is/v1/developer/apps`. This management API is separate from the SDK prediction client. SDK 0.3.1 includes PAYG usage types with a nullable spending cap; prediction requests and runtime exports are unchanged. Request and response schemas are also available in the hosted API's `/openapi.json` under the `Developer apps` tag.
 
 ## Authentication and ownership
 

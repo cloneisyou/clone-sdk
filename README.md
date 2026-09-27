@@ -13,18 +13,16 @@ Use your product's conversation, selected artifact and user preferences as conte
 
 Node **22.13+**, ESM. React integrations support **18 and 19**. The headless controller and server client do not require React.
 
-This checkout contains unreleased changes. To evaluate this revision, [build a local package](docs/releases.md#build-this-checkout). The existing tagged archive below does not include those changes.
-
-Download the package and checksum from [release v0.3.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.3.0), then verify and install:
+Download the package and checksum from [release v0.3.1](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.3.1), then verify and install:
 
 ```sh
 cd vendor/clone-sdk
-shasum -a 256 -c clone-ai-tab-completion-0.3.0.tgz.sha256
+shasum -a 256 -c clone-ai-tab-completion-0.3.1.tgz.sha256
 cd ../..
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.3.0.tgz
+npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.3.1.tgz
 ```
 
-Use your project's package manager and commit its lockfile. **The package is not on npm.** See [release downloads](docs/releases.md#download-and-install) for public and authenticated download commands. GitHub access, where required, is separate from hosted API access.
+Use your project's package manager and commit its lockfile. **The package is not on npm.** See [release downloads](docs/releases.md#download-and-install) for download commands. Hosted API access requires a separate app key.
 
 ```tsx
 'use client';
@@ -75,7 +73,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [localhost:4317](http://127.0.0.1:4317). Type, accept with Tab, then send explicitly. Add `?assistant=1` to try assistant-ui. The default demo uses synthetic suggestions and sends nothing to Clone. If repository access is restricted, use an authorized GitHub account to clone.
+Open [localhost:4317](http://127.0.0.1:4317). Type, accept with Tab, then send explicitly. Add `?assistant=1` to try assistant-ui. The default demo uses synthetic suggestions and sends nothing to Clone.
 
 ## Choose an entry point
 

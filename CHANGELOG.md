@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.1
 
 - Clarify installation, entry points and repository layout for public distribution.
 - Group generated types and the executable React demo by responsibility.

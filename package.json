@@ -1,6 +1,6 @@
 {
   "name": "@clone-ai/tab-completion",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Context-aware Tab completion for existing React composers. No automatic submission.",
   "type": "module",
   "sideEffects": false,

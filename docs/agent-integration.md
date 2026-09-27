@@ -2,7 +2,7 @@
 
 Implement next-prompt prediction and Tab Completion in the existing customer composer using product context by default, preserving its submission behavior. No Clone end-user account, consent screen or callback is required for this basic path. Offer Clone personalization separately in settings only if desired. Read `README.md`, exported types and `openapi.json`. Do not infer that the customer uses assistant-ui just because the optional adapter exists.
 
-Begin with [start.md](start.md), which covers agent-led self-service app registration and callback updates. This guide supplies the detailed implementation contract for SDK 0.3.0.
+Begin with [start.md](start.md), which covers agent-led self-service app registration and callback updates. This guide supplies the detailed implementation contract for SDK 0.3.1.
 
 ## Prerequisites
 
