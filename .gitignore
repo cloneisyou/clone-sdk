@@ -1,0 +1,17 @@
+node_modules/
+dist/
+artifacts/
+test-results/
+playwright-report/
+release-manifest.json
+*.tgz
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Local audit and agent output must never enter the public repository.
+.gstack/
+output/
+coverage/

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "NodeNext", "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"], "jsx": "react-jsx", "strict": true,
+    "declaration": true, "outDir": "dist", "rootDir": "src", "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true, "verbatimModuleSyntax": true
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,107 @@
+{
+  "name": "@clone-ai/tab-completion",
+  "version": "0.3.0",
+  "description": "Context-aware Tab completion for existing React composers. No automatic submission.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "docs",
+    "openapi.json",
+    "release-manifest.json",
+    "scripts/create-example.mjs",
+    "playwright.config.ts",
+    "tests/browser",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "examples/react/*.ts",
+    "examples/react/*.tsx",
+    "examples/react/index.html"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./assistant-ui": {
+      "types": "./dist/assistant-ui.d.ts",
+      "import": "./dist/assistant-ui.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "test:browser": "playwright test",
+    "dev": "vite --config examples/react/vite.config.ts",
+    "generate:types": "openapi-typescript openapi.json -o src/generated/api-types.ts --default-non-nullable false",
+    "check:public": "node scripts/check-public.mjs",
+    "prepack": "npm run build && node scripts/release-manifest.mjs",
+    "test:package": "node scripts/test-package.mjs",
+    "test:scripts": "node --test tests/scripts/*.test.mjs",
+    "check": "pnpm check:public && pnpm build && pnpm typecheck && pnpm test && pnpm test:scripts",
+    "typecheck": "tsc -p tsconfig.test.json"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
+    "@assistant-ui/react": "0.15.21"
+  },
+  "peerDependenciesMeta": {
+    "@assistant-ui/react": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@assistant-ui/react": "0.15.21",
+    "@playwright/test": "1.60.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@types/node": "24.12.2",
+    "openapi-typescript": "7.13.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "typescript": "5.9.3",
+    "vite": "8.0.16",
+    "vitest": "4.1.11"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloneisyou/clone-sdk.git"
+  },
+  "homepage": "https://github.com/cloneisyou/clone-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/cloneisyou/clone-sdk/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@11.19.0",
+  "keywords": [
+    "react",
+    "tab-completion",
+    "composer",
+    "assistant-ui",
+    "clone"
+  ]
+}

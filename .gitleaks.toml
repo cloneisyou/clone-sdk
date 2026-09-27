@@ -1,0 +1,10 @@
+title = "Clone SDK secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "clone-app-key"
+description = "Clone app credential"
+regex = '''clnp_[A-Za-z0-9_-]{24,}'''
+keywords = ["clnp_"]
