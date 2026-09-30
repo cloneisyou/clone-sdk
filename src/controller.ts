@@ -15,6 +15,8 @@ export interface CompletionState {
   status: 'idle' | 'loading' | 'suggested' | 'unavailable';
   candidate: PredictionOutput | null;
   error: string | null;
+  /** Full in instant mode; a grapheme-safe prefix during optional animation. */
+  visibleCompletion: string;
 }
 
 export interface AcceptedCompletion { value: string; suffix: string; requestId: string }
@@ -23,6 +25,8 @@ export interface CompletionOptions {
   transport: PredictionTransport;
   debounceMs?: number;
   maxRequestsPerMinute?: number;
+  requestTimeoutMs?: number;
+  presentation?: 'instant' | 'typewriter';
   onEvent?: (event: { request_id: string; kind: 'presented' | 'accepted' | 'dismissed' }) => void;
 }
 
@@ -33,11 +37,13 @@ export class CompletionController {
   private generation = 0;
   private timer: ReturnType<typeof setTimeout> | undefined;
   private expiry: ReturnType<typeof setTimeout> | undefined;
+  private animation: ReturnType<typeof setTimeout> | undefined;
+  private deadline: ReturnType<typeof setTimeout> | undefined;
   private abort: AbortController | undefined;
   private listeners = new Set<() => void>();
   private requestTimes: number[] = [];
   private disposed = false;
-  private state: CompletionState = { status: 'idle', candidate: null, error: null };
+  private state: CompletionState = { status: 'idle', candidate: null, error: null, visibleCompletion: '' };
 
   constructor(private readonly options: CompletionOptions) {}
   getSnapshot = (): CompletionState => this.state;
@@ -46,8 +52,8 @@ export class CompletionController {
     return () => this.listeners.delete(listener);
   };
 
-  private emit(state: CompletionState) {
-    this.state = state;
+  private emit(state: Omit<CompletionState, 'visibleCompletion'> & { visibleCompletion?: string }) {
+    this.state = { ...state, visibleCompletion: state.visibleCompletion ?? state.candidate?.completion ?? '' };
     for (const listener of this.listeners) listener();
   }
 
@@ -59,6 +65,8 @@ export class CompletionController {
     this.generation++;
     clearTimeout(this.timer);
     clearTimeout(this.expiry);
+    clearTimeout(this.animation);
+    clearTimeout(this.deadline);
     this.abort?.abort();
     this.abort = undefined;
   }
@@ -88,9 +96,17 @@ export class CompletionController {
       mode: input.value ? 'complete_draft' : 'next_prompt', draft: { text: input.value, revision: input.revision },
     };
     this.emit({ status: 'loading', candidate: null, error: null });
+    if (generation !== this.generation || this.disposed) return;
+    const timeout = this.options.requestTimeoutMs ?? 15_000;
+    this.deadline = setTimeout(() => {
+      if (generation !== this.generation || this.disposed) return;
+      this.invalidate();
+      this.emit({ status: 'unavailable', candidate: null, error: 'prediction_timeout' });
+    }, Number.isFinite(timeout) ? Math.max(1, Math.min(timeout, 30_000)) : 15_000);
     try {
       const candidate = await this.options.transport(request, { signal: abort.signal });
       if (this.disposed || abort.signal.aborted || generation !== this.generation) return;
+      clearTimeout(this.deadline);
       if (!candidate || candidate.request_id !== request.request_id
         || candidate.session_id !== request.session_id || candidate.connection_id !== request.connection_id
         || candidate.draft_revision !== input.revision || candidate.context_revision !== request.context_revision
@@ -102,11 +118,28 @@ export class CompletionController {
         this.emit({ status: 'idle', candidate: null, error: null });
         return;
       }
-      this.emit({ status: 'suggested', candidate, error: null });
-      this.event(candidate.request_id, 'presented');
+      if (this.options.presentation === 'typewriter') {
+        const letters = Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(candidate.completion), part => part.segment);
+        const start = Date.now();
+        const duration = Math.min(1500, letters.length * 20);
+        const reveal = () => {
+          if (generation !== this.generation || this.disposed) return;
+          const count = Math.min(letters.length, Math.ceil((Date.now() - start) / duration * letters.length));
+          this.emit({ status: 'suggested', candidate, error: null, visibleCompletion: letters.slice(0, count).join('') });
+          if (generation !== this.generation || this.disposed) return;
+          if (count === letters.length) this.event(candidate.request_id, 'presented');
+          else this.animation = setTimeout(reveal, 20);
+        };
+        reveal();
+      } else {
+        this.emit({ status: 'suggested', candidate, error: null });
+        this.event(candidate.request_id, 'presented');
+      }
+      if (generation !== this.generation || this.disposed) return;
       this.expiry = setTimeout(() => this.dismiss(false), Math.min(60_000, candidate.expires_at * 1000 - Date.now()));
     } catch (error) {
       if (this.disposed || abort.signal.aborted || generation !== this.generation) return;
+      clearTimeout(this.deadline);
       this.emit({ status: 'unavailable', candidate: null,
         error: error instanceof Error ? error.message : 'prediction_unavailable' });
     }
@@ -117,7 +150,8 @@ export class CompletionController {
     const input = this.input;
     if (!candidate || !input || input.composing || !input.focused || input.enabled === false
       || input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length
-      || candidate.expires_at * 1000 <= Date.now()) return null;
+      || candidate.expires_at * 1000 <= Date.now()
+      || this.state.visibleCompletion !== candidate.completion) return null;
     this.invalidate();
     this.emit({ status: 'idle', candidate: null, error: null });
     this.event(candidate.request_id, 'accepted');

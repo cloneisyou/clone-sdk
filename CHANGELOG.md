@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Choose optional grapheme-safe typewriter presentation with `presentation: "typewriter"`; instant remains the default and Tab waits for the complete candidate.
+- Bound stalled SDK requests with prediction deadlines and server-side concurrency protection; cancellation also covers response-body reads. See [reliability](docs/reliability.md).
+- Offer explicitly started [Clone mode](docs/clone-mode.md) with preview, Stop, scope isolation, turn/time limits, agent attribution, and host completion acknowledgments.
+- Follow the [API guide](docs/api.md) and [agent installation guide](docs/start.md) for API Platform, installation choices, outage handling and personalization.
+- Try the local interaction example at `?clone-mode=1` to inspect preview, Stop and host completion behavior.
+
 ## 0.3.1
 
 - Clarify installation, entry points and repository layout for public distribution.

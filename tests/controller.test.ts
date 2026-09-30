@@ -17,6 +17,34 @@ const result = (request: CompletionRequest): PredictionOutput => ({
 describe('completion lifecycle', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
+  it('animates whole graphemes and refuses Tab until the full candidate is visible', async () => {
+    const controller = new CompletionController({ presentation: 'typewriter', debounceMs: 0,
+      transport: async request => ({ ...result(request), completion: '👨‍👩‍👧‍👦 한글' }) });
+    controller.update(input()); await vi.advanceTimersByTimeAsync(20);
+    expect(controller.getSnapshot().visibleCompletion).toBe('👨‍👩‍👧‍👦');
+    expect(controller.accept()).toBeNull();
+    await vi.advanceTimersByTimeAsync(100);
+    expect(controller.accept()?.suffix).toBe('👨‍👩‍👧‍👦 한글');
+    controller.dispose();
+  });
+  it('clears animation on edits and never offers a stale prefix', async () => {
+    const controller = new CompletionController({ presentation: 'typewriter', debounceMs: 0,
+      transport: async request => result(request) });
+    controller.update(input()); await vi.advanceTimersByTimeAsync(20);
+    controller.update(input({ value: 'new draft', enabled: false }));
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(controller.getSnapshot().visibleCompletion).toBe('');
+    expect(controller.accept()).toBeNull(); controller.dispose();
+  });
+  it('times out ignored cancellation and drops its eventual late result', async () => {
+    let finish!: () => void;
+    const controller = new CompletionController({ debounceMs: 0, requestTimeoutMs: 100,
+      transport: request => new Promise(resolve => { finish = () => resolve(result(request)); }) });
+    controller.update(input()); await vi.advanceTimersByTimeAsync(100);
+    expect(controller.getSnapshot()).toMatchObject({ status: 'unavailable', error: 'prediction_timeout' });
+    finish(); await vi.advanceTimersByTimeAsync(0);
+    expect(controller.accept()).toBeNull(); controller.dispose();
+  });
   it('debounces, accepts only into text, and never repeats a dismissed snapshot', async () => {
     const transport = vi.fn(async request => result(request));
     const events = vi.fn();
