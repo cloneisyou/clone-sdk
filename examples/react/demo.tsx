@@ -6,6 +6,7 @@ import { TabCompletionInput } from '../../src/react.js';
 import { CloneComposerInput } from '../../src/assistant-ui.js';
 import { createPredictionTransport } from '../../src/transport.js';
 import type { CompletionRequest, PredictionTransport } from '../../src/types.js';
+import { CloneModeDemo } from './mode-demo.js';
 import { ComposerEvents } from './composer-events.js';
 import type { ComposerEvent } from './composer-events.js';
 
@@ -138,4 +139,4 @@ function Demo() {
   </main>;
 }
 
-createRoot(document.getElementById('root')!).render(<StrictMode><Demo /></StrictMode>);
+createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).get('clone-mode') === '1' ? <CloneModeDemo /> : <Demo />}</StrictMode>);

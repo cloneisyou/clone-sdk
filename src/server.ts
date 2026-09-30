@@ -1,6 +1,7 @@
 import type { components } from './generated/api-types.js';
 import type { CompletionRequest, PredictionOutput, PredictionEvent } from './types.js';
 import { ClonePredictionError, readResponse } from './http.js';
+import { withDeadline } from './deadline.js';
 
 export interface ConnectionFlow {
   requestId: string; state: string; codeVerifier: string; redirectUri: string; userId: string;
@@ -10,7 +11,10 @@ export class CloneClient {
   #key: string;
   #base: string;
   #fetch: typeof fetch;
-  constructor(options: { apiKey: string; baseUrl: string; fetch?: typeof fetch }) {
+  #timeout: number;
+  #limit: number;
+  #inFlight = 0;
+  constructor(options: { apiKey: string; baseUrl: string; fetch?: typeof fetch; requestTimeoutMs?: number; maxConcurrentRequests?: number }) {
     if (typeof window !== 'undefined') throw new Error('CloneClient must only run on your server');
     const url = new URL(options.baseUrl);
     if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))) {
@@ -21,15 +25,25 @@ export class CloneClient {
     this.#key = options.apiKey;
     this.#base = options.baseUrl.replace(/\/$/, '');
     this.#fetch = options.fetch ?? globalThis.fetch;
+    this.#timeout = options.requestTimeoutMs ?? 15_000;
+    this.#limit = options.maxConcurrentRequests ?? 16;
+    if (!Number.isFinite(this.#timeout) || this.#timeout < 1 || this.#timeout > 30_000
+      || !Number.isInteger(this.#limit) || this.#limit < 1 || this.#limit > 1000) throw new Error('Invalid Clone request limits');
   }
 
   private async call<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-    const response = await this.#fetch(this.#base + '/v1' + path, {
-      method: body === undefined ? 'GET' : 'POST', signal,
-      headers: { Authorization: 'Bearer ' + this.#key, 'Content-Type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    return await readResponse(response) as T;
+    if (this.#inFlight >= this.#limit) throw new ClonePredictionError('client_capacity_exceeded', 503);
+    this.#inFlight++;
+    try {
+      return await withDeadline(async boundedSignal => {
+        const response = await this.#fetch(this.#base + '/v1' + path, {
+          method: body === undefined ? 'GET' : 'POST', signal: boundedSignal,
+          headers: { Authorization: 'Bearer ' + this.#key, 'Content-Type': 'application/json' },
+          body: body === undefined ? undefined : JSON.stringify(body),
+        });
+        return await readResponse(response) as T;
+      }, this.#timeout, signal);
+    } finally { this.#inFlight--; }
   }
 
   predict(userId: string, request: CompletionRequest, options: { signal?: AbortSignal } = {}): Promise<PredictionOutput> {

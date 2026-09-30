@@ -6,8 +6,8 @@ const [destination, tarball] = process.argv.slice(2);
 if (!destination || !tarball) throw new Error('Usage: node create-example.mjs /new/empty/directory /sdk.tgz');
 const target = resolve(destination);
 await mkdir(target); // Refuse to overwrite an existing project.
-const files = ['examples/react/demo.tsx', 'examples/react/composer-events.ts', 'examples/react/index.html', 'examples/react/vite.config.ts', 'playwright.config.ts',
-  'tests/browser/composer.spec.ts'];
+const files = ['examples/react/demo.tsx', 'examples/react/mode-demo.tsx', 'examples/react/composer-events.ts', 'examples/react/index.html', 'examples/react/vite.config.ts', 'playwright.config.ts',
+  'tests/browser/composer.spec.ts', 'tests/browser/clone-mode.spec.ts', 'tests/browser/clone-mode-options.tsx'];
 for (const file of files) {
   let text = await readFile(resolve(root, file), 'utf8');
   for (const [from, to] of Object.entries({

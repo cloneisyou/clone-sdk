@@ -5,6 +5,8 @@ import {
 } from 'react';
 import type { CSSProperties, KeyboardEvent, TextareaHTMLAttributes } from 'react';
 import { CompletionController } from './controller.js';
+import { CloneModeController } from './clone-mode.js';
+import type { CloneModeInput, CloneModeOptions } from './clone-mode.js';
 import type { CompletionInput, CompletionOptions } from './controller.js';
 import type { CompletionRequest, PredictionTransport } from './types.js';
 
@@ -16,7 +18,48 @@ export interface TabCompletionOptions {
   enabled?: boolean;
   debounceMs?: number;
   maxRequestsPerMinute?: number;
+  requestTimeoutMs?: number;
+  presentation?: 'instant' | 'typewriter';
   onEvent?: CompletionOptions['onEvent'];
+}
+
+/** Opt-in only. Render the returned candidate and a visible Stop action before starting. */
+export function useCloneMode(options: CloneModeOptions & { input: CloneModeInput }) {
+  const current = useRef(options);
+  current.current = options;
+  const controller = useMemo(() => new CloneModeController({
+    transport: (request, settings) => current.current.transport(request, settings),
+    onSubmit: (text, metadata) => current.current.onSubmit(text, metadata),
+    get reviewMs() { return current.current.reviewMs; },
+    get requestTimeoutMs() { return current.current.requestTimeoutMs; },
+  }), []);
+  const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
+  const settings = useRef({ reviewMs: options.reviewMs, requestTimeoutMs: options.requestTimeoutMs });
+  const key = JSON.stringify(options.input);
+  useLayoutEffect(() => {
+    const changed = !Object.is(settings.current.reviewMs, options.reviewMs)
+      || !Object.is(settings.current.requestTimeoutMs, options.requestTimeoutMs);
+    settings.current = { reviewMs: options.reviewMs, requestTimeoutMs: options.requestTimeoutMs };
+    // Keep the controller's pending-send guard until the host receipt settles.
+    if (changed && !['off', 'stopped'].includes(controller.getSnapshot().status)) controller.stop('settings_changed');
+    controller.update(current.current.input);
+  }, [controller, key, options.reviewMs, options.requestTimeoutMs]);
+  useEffect(() => {
+    const stopActive = (reason: string) => {
+      if (!['off', 'stopped'].includes(controller.getSnapshot().status)) controller.stop(reason);
+    };
+    const visibility = () => { if (document.hidden) stopActive('page_hidden'); };
+    document.addEventListener('visibilitychange', visibility);
+    return () => { document.removeEventListener('visibilitychange', visibility); stopActive('unmounted'); };
+  }, [controller]);
+  return { state,
+    start: (limits?: { maxTurns?: number; maxDurationMs?: number }) => {
+      controller.update(current.current.input);
+      return !document.hidden && controller.start(limits);
+    },
+    stop: () => controller.stop(),
+    turnCompleted: () => { controller.update(current.current.input); return controller.turnCompleted(); },
+  };
 }
 
 export function useTabCompletion(options: TabCompletionOptions) {
@@ -33,7 +76,8 @@ export function useTabCompletion(options: TabCompletionOptions) {
     transport: (request, settings) => current.current.transport(request, settings),
     onEvent: event => current.current.onEvent?.(event),
     debounceMs: options.debounceMs, maxRequestsPerMinute: options.maxRequestsPerMinute,
-  }), [options.debounceMs, options.maxRequestsPerMinute]);
+    requestTimeoutMs: options.requestTimeoutMs, presentation: options.presentation,
+  }), [options.debounceMs, options.maxRequestsPerMinute, options.requestTimeoutMs, options.presentation]);
   const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
   const snapshot = useCallback((): CompletionInput => {
     const node = inputRef.current;
@@ -88,7 +132,8 @@ export function useTabCompletion(options: TabCompletionOptions) {
     onBlur: () => { controller.dismiss(false); rerender(n => n + 1); },
     onSelect: () => { controller.update(snapshot()); rerender(n => n + 1); },
   };
-  return { inputProps, inputRef, completion: state.candidate?.completion ?? '', state,
+  return { inputProps, inputRef, completion: state.visibleCompletion, state,
+    canAccept: !!state.candidate && state.visibleCompletion === state.candidate.completion,
     accept, dismiss: () => controller.dismiss() };
 }
 
@@ -98,11 +143,11 @@ export type TabCompletionInputProps = TabCompletionOptions & Omit<
 
 /** Drop-in textarea; the parent owns form submission and every explicit send. */
 export function TabCompletionInput(props: TabCompletionInputProps) {
-  const { value, onValueChange, context, transport, enabled, debounceMs, maxRequestsPerMinute,
+  const { value, onValueChange, context, transport, enabled, debounceMs, maxRequestsPerMinute, requestTimeoutMs, presentation,
     onEvent, style, onKeyDown, onFocus, onBlur, onSelect, onCompositionStart, onCompositionEnd, onScroll,
     ...textarea } = props;
   const completion = useTabCompletion({ value, onValueChange, context, transport,
-    enabled: enabled !== false && !textarea.disabled && !textarea.readOnly, debounceMs, maxRequestsPerMinute, onEvent });
+    enabled: enabled !== false && !textarea.disabled && !textarea.readOnly, debounceMs, maxRequestsPerMinute, requestTimeoutMs, presentation, onEvent });
   const ghostRef = useRef<HTMLDivElement>(null);
   const id = useId();
   const shared: CSSProperties = { boxSizing: 'border-box', width: '100%', padding: 12, margin: 0,
@@ -130,7 +175,7 @@ export function TabCompletionInput(props: TabCompletionInputProps) {
       }}
     />
     {completion.completion && <span id={id} style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)' }}>
-      Suggestion: {completion.completion}. Press Tab to accept, Escape to dismiss.
+      Suggestion: {completion.completion}. {completion.canAccept ? 'Press Tab to accept, Escape to dismiss.' : 'Loading suggestion. Escape to dismiss.'}
     </span>}
   </div>;
 }

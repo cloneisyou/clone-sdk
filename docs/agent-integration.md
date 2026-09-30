@@ -2,17 +2,17 @@
 
 Implement next-prompt prediction and Tab Completion in the existing customer composer using product context by default, preserving its submission behavior. No Clone end-user account, consent screen or callback is required for this basic path. Offer Clone personalization separately in settings only if desired. Read `README.md`, exported types and `openapi.json`. Do not infer that the customer uses assistant-ui just because the optional adapter exists.
 
-Begin with [start.md](start.md), which covers agent-led self-service app registration and callback updates. This guide supplies the detailed implementation contract for SDK 0.3.1.
+Begin with [start.md](start.md), which covers agent-led self-service app registration and callback updates. This guide supplies the detailed implementation contract for SDK 0.4.0. Verify installed types; 0.3.1 has no typewriter option or Clone mode.
 
 ## Prerequisites
 
 - The versioned SDK release archive, Node 22.13+, React 18 or 19. Follow the [release download instructions](releases.md#download-and-install). An authorized GitHub account is needed only while repository access is restricted. The package is not on npm.
-- A non-production Clone app key (`clnp_...`) and API base URL. Only optional personalization needs an exact registered HTTPS callback (HTTP loopback is local/test only). The agent obtains these through self-service onboarding; the customer need not prepare them in advance.
+- A Clone app key (`clnp_...`) for the chosen production or sandbox app and its API base URL. Use an isolated sandbox app for synthetic integration tests. Only optional personalization needs an exact registered HTTPS callback (HTTP loopback is local/test only). The agent obtains these through self-service onboarding; the customer need not prepare them in advance.
 - An existing authenticated customer session and server-side session storage.
 - Only for optional personalization: a Clone test account with selected profile/Goal context already synced. Basic verification needs no Clone test account. Local-only unsynced content is unavailable.
 - When credentials or the customer's auth/session interface are missing, identify that dependency; do not fabricate them or claim a connected test passed.
 
-The app key is required for API verification; a callback and Clone account are required only for optional personalized verification. Missing credentials do not prevent implementation or deterministic tests. If account access is absent, use [browser/computer-use onboarding](browser-onboarding.md) and request only an authentication or required-consent handoff when needed. If offering personalization, derive and register the callback using the [self-service onboarding procedure](start.md#2-register-your-app-and-settings). The hosted API origin is `https://api.clone.is` unless Clone specifies another environment. No additional service credentials are required for predictions.
+The app key is required for API verification; a callback and Clone account are required only for optional personalized verification. Missing credentials do not prevent inspection, preparation or deterministic tests. Production installation follows verified company card setup; an explicitly selected sandbox does not require a card. If account access is absent, use [browser/computer-use onboarding](browser-onboarding.md) and request only an authentication or required-consent handoff when needed. If offering personalization, derive and register the callback using the [self-service onboarding procedure](start.md#1-register-your-app-and-settings). The hosted API origin is `https://api.clone.is` unless Clone specifies another environment. No additional service credentials are required for predictions.
 
 ## Server integration
 
@@ -60,6 +60,10 @@ Pass the actual conversation through `context.messages`, including the latest ex
 
 Debounce defaults to 350 ms; one active client request; default maximum 20 attempts/minute per controller. Eligibility: focused, writable textarea, caret at the end, no selection, no active IME. Tab accepts; Escape dismisses and stops propagation; without a candidate Tab retains normal focus traversal. Stale/aborted/mismatched/expired results are ignored. No Clone connection means product-context prediction remains available. Set `enabled={false}` on host logout; change the session identity/context on host account switches before re-enabling. Omitted connection IDs no longer disable prediction in 0.2.1. Native insertion preserves Chromium Undo; verify the host/browser combination before claiming support.
 
+## Optional automatic sending
+
+Ask whether the customer wants to expose Clone mode separately from manual Tab completion. Use the [Clone mode contract](clone-mode.md), keep it off by default, and show the end user the scope, turn/time limits, full candidate and Stop control. Start only on an explicit user action. Supply the normal authenticated host send callback, bind account/thread/connection identity, stop on typing/IME/hide/logout/context change/error, and call `turnCompleted()` only after the host agent completes and new context is supplied. Submitted messages use `origin: "agent"`, never human acceptance. Unknown send outcomes are not retried. The executable local example is `?clone-mode=1`.
+
 ## Observation events
 
 Wire `onEvent` for `presented`, `accepted` and `dismissed`. The host records `edited` only after the user changes an accepted draft, and `submitted` only from its existing successful submission callback. Never send a message to obtain telemetry. The executable example includes `examples/react/composer-events.ts`: observe the pre-insertion value when `accepted` arrives, feed native input changes (and controlled `onValueChange`) to the tracker, and call `submitted(text)` once the host accepts an explicit send. Reset attribution on account, connection, thread or artifact-context changes. The assistant-ui example uses the same input observer and its runtime `onNew` callback.
@@ -70,7 +74,25 @@ The example distinguishes the SDK insertion from a later edit, removes attributi
 
 Telemetry is best effort and must not block input or send. The example shows local `pending`/`recorded`/`failed` delivery receipts; fixture receipts are labelled separately. It does not persist a retry queue. If adding retries, retain the same event ID/body, bound the queue, and discard old-user work on logout/account switch. Report failed/missing deliveries instead of treating them as zero engagement. Verify acceptance without send, edited submission, Undo followed by an unrelated manual send, context change, telemetry failure, duplicate delivery, and unchanged billable usage. These event records alone do not establish coverage, usefulness, suggestion quality or human acceptance.
 
+## Suggestion rendering contract
+
+The prediction endpoint returns one complete JSON object, not SSE or token deltas. `createPredictionTransport` waits for that response, the controller validates it, and the controller validates the complete candidate. By default `useTabCompletion` exposes the full `completion` immediately and `TabCompletionInput` renders it as ghost text. With `presentation: "typewriter"`, the hook exposes a visible prefix until the animation completes; `canAccept` remains false until then. The complete candidate remains in `state.candidate`. This is the default for both empty-composer next prompts and draft completions.
+
+Do not add per-character timers, progressively slice `completion`, or route it through an assistant-message streaming renderer by default. A typewriter animation is an optional presentation choice, not evidence that the API streams. In 0.4.0 set `presentation: "typewriter"` only when the customer's stated preference or an AskUserQuestion answer calls for it; do not ask again for a choice already supplied. The entire candidate must be visible before offering Tab acceptance; never accept only a partial string or send unseen text. Cancel any animation on edits, selection/context changes, dismissal, or expiry. Ordinary manual sending must stay available throughout.
+
+Verify the installed package version and lockfile, inspect the actual composer adapter, and check the response format before attributing progressive display to the SDK or customer code. A recording alone cannot establish which layer produced an effect. Return evidence that the default renderer shows a complete candidate, Tab inserts it exactly once without sending, and only the host's explicit-send action submits it.
+
 ## Errors and retry
+
+### Keep the host composer independent of Clone availability
+
+Prediction is optional background work. Never await it in the host's input, attachment, Undo, Enter or send-button path, and never disable the composer while it is loading or unavailable. On Clone network failure, HTTP error, invalid response or abstention, show no candidate and retain the current draft, selection, attachments and normal explicit-send behavior. Keep infrastructure errors in developer diagnostics, not in a blocking end-user dialog.
+
+Do not gate composer mounting, page loading, or the host's send endpoint on Clone health. Keep prediction requests separate from the customer's core send/agent path and bound their backend concurrency so stalled prediction calls cannot exhaust shared request capacity. A Clone outage disables the enhancement; it must not disable the product's composer. This integration contract must be tested in the customer's actual app, not inferred from the SDK demo.
+
+The controller and server client default to a 15-second prediction deadline (`requestTimeoutMs`, at most 30 seconds). Reuse one server `CloneClient` with `maxConcurrentRequests` (default 16) to bound local in-flight calls. Apply suitable host request-body limits, propagate disconnect cancellation, and retain the SDK's stale-result checks. A request that never resolves must still leave typing, editing, focus traversal and sending usable. Recovery must not submit a draft or accept an old candidate. Avoid automatic retry loops and never generate a new paid request merely to hide an unknown transport outcome.
+
+Verify this in the actual host composer by returning 503, 429 and 402 from the Clone proxy, failing its network request, returning malformed JSON, and leaving a request pending. For each case: type and edit text, confirm no stale ghost text, verify candidate-free Tab moves focus, and send the exact draft once through the existing Enter/button flow. Check Undo and IME independently. Restore the prediction route and verify a fresh suggestion can be accepted without sending. These local failure cases do not prove production capacity or a live customer outage test.
 
 | Code / status | Action |
 |---|---|

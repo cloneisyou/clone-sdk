@@ -1,6 +1,6 @@
 # Pricing and billing
 
-SDK 0.3.1 supports both sandbox and pay-as-you-go (PAYG) usage, including an optional company spending limit. Install the verified [0.3.1 release](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.3.1). Hosted paid activation is available only when the developer console offers it; installing the SDK never enables payment.
+SDK 0.4.0 supports both sandbox and pay-as-you-go (PAYG) usage, including an optional company spending limit. Install the verified [0.4.0 release](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.4.0). Hosted paid activation is available only when the developer console offers it; installing the SDK never enables payment.
 
 The company operating your product pays for hosted predictions. End users need no Clone account or personal subscription. SDK code is MIT licensed. The public catalog is [SDK pricing](https://clone.is/pricing#sdk); availability depends on rollout, and existing individually negotiated contracts remain unchanged.
 
@@ -19,10 +19,11 @@ Examples: 0 suggestions cost $0; 1,000 cost $20; 10,000 cost $200. A unit is a v
 
 ## Card registration
 
-1. Open [Developer apps](https://clone.is/developer/apps) with a verified company developer account. Create or select an app and open **Usage and billing**.
+1. Open [Production setup](https://clone.is/developer/apps?setup=production) with a verified company developer account. Register or select the app. Store its one-time key before leaving the page and select **I saved the key** to continue to pricing and card setup. Existing apps expose **Continue production setup**. **Try the free sandbox** is a separate card-free evaluation path.
 2. Review and explicitly accept PAYG terms. **Add company card and enable PAYG** opens the hosted Stripe card-registration page. No usage fee is charged during card setup.
 3. Return to the console and confirm that the app shows PAYG as enabled. Returning from the payment page alone is not confirmation. Use **Refresh billing** if the status has not updated.
-4. Additional apps remain sandbox until explicitly enabled through **Enable PAYG for this app**. They reuse the company card and invoice.
+4. The console shows SDK installation and verification instructions only after reading the active app's paid/PAYG state. Card registration alone does not mean the SDK is installed or tested.
+5. Additional apps remain sandbox until explicitly enabled through **Enable PAYG for this app**. They reuse the company card and invoice.
 
 Empty callbacks are valid for basic predictions; configured paid callbacks must use HTTPS and cannot enable loopback. The card number stays on Stripe. Incomplete setup leaves the app in sandbox. App creation, rotation, and disabling never replenish sandbox quota. An integration prompt alone does not authorize an agent to activate paid usage.
 

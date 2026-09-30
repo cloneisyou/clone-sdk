@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Optional grapheme-safe typewriter presentation; instant remains the default and Tab waits for the complete candidate.
+- Bounded prediction deadlines, server-side concurrency protection, and cancellation across response bodies.
+- Explicitly started Clone mode with preview, Stop, scope isolation, turn/time limits, agent attribution, and host completion acknowledgments.
+- API Platform, agent installation choices, outage and personalization documentation.
+- Local interaction example at `?clone-mode=1`.
+
 ## 0.3.1
 
 - Clarify installation, entry points and repository layout for public distribution.

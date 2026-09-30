@@ -44,7 +44,7 @@ describe('server client trust boundary', () => {
       expect(JSON.parse(init!.body as string).user_id).toBe('owner');
       expect(init!.headers).toMatchObject({ Authorization: 'Bearer clnp_fixture' });
     }
-    expect(fetch.mock.calls[0]![1]!.signal).toBe(signal);
+    expect(fetch.mock.calls[0]![1]!.signal?.aborted).toBe(false);
   });
 
   it('encodes identifiers and preserves nullable usage limits', async () => {
@@ -90,4 +90,30 @@ describe('server client trust boundary', () => {
       code_verifier: first.flow.codeVerifier, code: 'code',
     });
   });
+});
+
+it('bounds a hung backend response, rejects excess work, and frees capacity after timeout', async () => {
+  vi.useFakeTimers();
+  try {
+    const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(() => new Promise(() => {}));
+    const client = new CloneClient({ apiKey: 'clnp_fixture', baseUrl: 'https://example.com', fetch,
+      requestTimeoutMs: 100, maxConcurrentRequests: 1 });
+    const first = client.predict('owner', request).catch(error => error);
+    await expect(client.predict('owner', { ...request, request_id: 'other' })).rejects.toMatchObject({ code: 'client_capacity_exceeded' });
+    await vi.advanceTimersByTimeAsync(100);
+    expect(await first).toMatchObject({ code: 'prediction_timeout', status: 504 });
+    expect(fetch.mock.calls[0]![1]!.signal?.aborted).toBe(true);
+    fetch.mockResolvedValueOnce(Response.json({ status: 'recorded' }));
+    expect(await client.usage()).toMatchObject({ status: 'recorded' });
+  } finally { vi.useRealTimers(); }
+});
+
+it('propagates caller cancellation through a response body that ignores abort', async () => {
+  const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(new ReadableStream({ start() {} })));
+  const client = new CloneClient({ apiKey: 'clnp_fixture', baseUrl: 'https://example.com', fetch });
+  const abort = new AbortController();
+  const pending = client.predict('owner', request, { signal: abort.signal });
+  abort.abort();
+  await expect(pending).rejects.toMatchObject({ code: 'prediction_cancelled' });
+  expect(fetch.mock.calls[0]![1]!.signal?.aborted).toBe(true);
 });
