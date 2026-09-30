@@ -112,6 +112,6 @@ pnpm test:package
 
 Package tests install the actual archive into React 18 and 19 consumers and verify build, Tab insertion, Undo, explicit send and context changes. These checks do not establish suggestion quality, native OS IME behavior or acceptance in your application.
 
-See [Contributing](CONTRIBUTING.md) for the repository layout and validation commands, [context mapping](docs/context-mapping.md) for request design, and [Releases](docs/releases.md) for distribution.
+See [Contributing](CONTRIBUTING.md) for the repository layout and validation commands, [context mapping](docs/context-mapping.md) for request design, [reliability](docs/reliability.md) for outage handling and limits, and [Releases](docs/releases.md) for distribution.
 
 [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [MIT license](LICENSE)

@@ -35,6 +35,6 @@ The host's `onSubmit` resolves true only after it accepted the send. It does not
 
 ## Stop conditions and attribution
 
-Draft edits, IME input, logout/disable, account or thread switches, changed personalization grants, hidden-page state in React, stale context during review, abstention, expiry, prediction errors and send failure stop the mode. There is no automatic retry. A pending unknown host send blocks restart until its receipt settles, preventing duplicate sends.
+Draft edits, IME input, logout/disable, account or thread switches, changed personalization grants, hidden-page state in React, stale context during review, abstention, expiry, prediction errors and send failure stop the mode. There is no automatic retry. A pending unknown host send blocks restart until its receipt settles, preventing duplicate sends. Changing React `reviewMs` or `requestTimeoutMs` also stops the active run and preserves that pending-send guard.
 
 Only continue after an acknowledged host turn and a new context revision. Automatic messages use origin `agent`, not `human`. Personalized inference is a separate option; enabling Clone mode does not connect a Clone account or expand its selected sources. A server outage leaves manual typing and sending available.
