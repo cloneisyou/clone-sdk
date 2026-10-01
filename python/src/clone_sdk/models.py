@@ -27,6 +27,7 @@ class Prediction(ResponseModel):
     expires_at: int
     context_truncated: bool
     usage: PredictionUsage
+    feedback_revision: str = ""
 
 
 class Usage(ResponseModel):
@@ -64,6 +65,11 @@ class Connection(ResponseModel):
 
 class EventResult(ResponseModel):
     status: Literal["recorded"]
+
+
+class FeedbackCleared(ResponseModel):
+    status: Literal["cleared"]
+    deleted: int = Field(ge=0)
 
 
 class RevokeResult(ResponseModel):

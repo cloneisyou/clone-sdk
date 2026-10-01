@@ -1,3 +1,10 @@
+# 0.6.0
+
+- Packaged feedback tracker and bounded idempotent delivery.
+- Explicit evaluations, rejection and host-observed outcomes. Edited sent text remains opt-in and attributed.
+- Feedback revision and server-side memory clearing in JS and Python (0.2.0).
+- API contract for app/user/grant-scoped feedback memory; requires the matching server rollout.
+
 # Changelog
 
 ## 0.5.0

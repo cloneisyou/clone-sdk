@@ -16,7 +16,8 @@ describe('host observation attribution', () => {
     expect(tracker.submitted('draft suggestion edited again')).toBe('human');
     expect(events.map(event => event.kind)).toEqual(['presented', 'accepted', 'edited', 'submitted']);
     expect(new Set(events.map(event => event.event_id)).size).toBe(4);
-    expect(events.every(event => Object.keys(event).sort().join(',') === 'event_id,kind,request_id')).toBe(true);
+    expect(events.every(event => !event.final_text && !event.guidance)).toBe(true);
+    expect(events.at(-1)?.submission_origin).toBe('edited_prediction');
   });
   it.each(['undo', 'clear', 'context-change'])('does not attribute unrelated submissions after %s', reason => {
     const events: ComposerEvent[] = [];

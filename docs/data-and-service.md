@@ -19,3 +19,7 @@ On logout or account switch, disable prediction and clear the displayed candidat
 ## Test boundaries
 
 The demo returns deterministic synthetic suggestions. It proves UI mechanics only. Keep provisioned sandbox API behavior, consent/revocation, application authentication and browser/editor checks separate from fixture tests. Complete automated integration with available evidence; do not require additional human real-use sessions or manual QA. If app issuance is unavailable, report API verification as pending. Missing Clone consent affects only optional personalization verification; basic API predictions need no Clone end-user account. Native OS IME and human usefulness remain unverified without evidence specific to them. Do not present fixture success as evidence of suggestion quality or customer adoption. See [the agent entry point](start.md) for the bounded verification and onboarding workflow.
+
+## Feedback retention
+
+With the API feedback deployment, explicit evaluations and opted-in edited successful submissions are encrypted, scoped to the app/user/connection grant, capped at 50 records per user and retained for 30 days. They can influence subsequent new predictions as bounded evidence. Behavior receipts remain content-free; task outcomes are host reports. Clearing removes memory and fences off late old-request events, in-flight results and replay. No shared model-weight training is performed. See [feedback](feedback.md).

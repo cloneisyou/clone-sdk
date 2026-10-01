@@ -34,6 +34,12 @@ export function summarize(records) {
     }
     const accepted = [...events.values()].filter(event => Number.isFinite(event.accepted));
     const submitted = accepted.filter(event => Number.isFinite(event.submitted) && event.submitted >= event.accepted);
+    const decisions = new Map();
+    for (const row of rows) {
+      if (row.event_id && row.delivery === 'recorded' && ['rejected', 'feedback', 'outcome'].includes(row.kind)) {
+        decisions.set(row.event_id, { ...decisions.get(row.event_id), ...row });
+      }
+    }
     const pilotSessions = new Map();
     for (const row of rows) {
       if (row.kind === 'session' && row.pilot && row.session_id) {
@@ -53,6 +59,10 @@ export function summarize(records) {
       accepted_with_timestamps: accepted.length, submitted_after_acceptance: submitted.length,
       observed_accept_to_submit_rate: accepted.length ? submitted.length / accepted.length : null,
       failed_event_deliveries: rows.filter(row => row.delivery === 'failed').length,
+      explicit_rejections: [...decisions.values()].filter(row => row.kind === 'rejected').length,
+      explicit_evaluations: [...decisions.values()].filter(row => row.kind === 'feedback').length,
+      host_reported_task_successes: [...decisions.values()].filter(row => row.task_outcome === 'succeeded').length,
+      host_reported_task_failures: [...decisions.values()].filter(row => row.task_outcome === 'failed').length,
     };
   }
   result.coverage = 'Local opt-in observations. Sessions are not returning customers. Missing telemetry is unknown, not rejection. Fixture/fault data is not customer adoption or provider capacity.';

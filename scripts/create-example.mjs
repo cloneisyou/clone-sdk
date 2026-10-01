@@ -13,6 +13,7 @@ for (const file of files) {
   for (const [from, to] of Object.entries({
     '../../src/react.js': '@clone-ai/tab-completion/react', '../../src/assistant-ui.js': '@clone-ai/tab-completion/assistant-ui',
     '../../src/transport.js': '@clone-ai/tab-completion', '../../src/types.js': '@clone-ai/tab-completion',
+    '../../src/feedback.js': '@clone-ai/tab-completion',
     '../../src/server.js': '@clone-ai/tab-completion/server',
   })) text = text.replaceAll(from, to);
   await mkdir(dirname(resolve(target, file)), { recursive: true });

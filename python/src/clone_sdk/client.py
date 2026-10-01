@@ -21,6 +21,7 @@ from .models import (
     Connection,
     ConnectionStarted,
     EventResult,
+    FeedbackCleared,
     Prediction,
     ResponseModel,
     RevokeResult,
@@ -199,6 +200,9 @@ class CloneClient(_Options):
     def record_event(self, user_id: str, event: Mapping[str, Any]) -> EventResult:
         return self._call("/prediction-events", EventResult, {**event, "user_id": user_id})
 
+    def clear_feedback(self, user_id: str) -> FeedbackCleared:
+        return self._call("/prediction-feedback/clear", FeedbackCleared, {"user_id": user_id})
+
     def cancel(self, user_id: str, request_id: str) -> CancelResult:
         return self._call(
             f"/predictions/{quote(request_id, safe='')}/cancel", CancelResult, {"user_id": user_id}
@@ -284,6 +288,9 @@ class AsyncCloneClient(_Options):
 
     async def record_event(self, user_id: str, event: Mapping[str, Any]) -> EventResult:
         return await self._call("/prediction-events", EventResult, {**event, "user_id": user_id})
+
+    async def clear_feedback(self, user_id: str) -> FeedbackCleared:
+        return await self._call("/prediction-feedback/clear", FeedbackCleared, {"user_id": user_id})
 
     async def cancel(self, user_id: str, request_id: str) -> CancelResult:
         return await self._call(

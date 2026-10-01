@@ -84,6 +84,7 @@ export default defineConfig({
             record({ ...event, observed_at, session_id, delivery: 'failed' }); throw error;
           }
         }
+        if (url.pathname === '/api/clone/clear-feedback') return json(200, await client.clearFeedback(user));
         // The server session owns optional personalization, never the browser body.
         if ((body.connection_id ?? null) !== (connectionId || null)) return json(403, { detail: { code: 'connection_mismatch' } });
         if (url.pathname === '/api/clone/predict') {

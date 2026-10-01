@@ -8,7 +8,7 @@ Python 3.11+. The candidate distribution is `clone-sdk`; import `clone_sdk`.
 Until the first PyPI publication, install the verified wheel from the release.
 
 ```sh
-pip install ./clone_sdk-0.1.0-py3-none-any.whl
+pip install ./clone_sdk-0.2.0-py3-none-any.whl
 ```
 
 ```python

@@ -79,6 +79,28 @@ def test_predict_binds_server_subject_and_reuses_exact_body_without_retry():
     assert len(requests) == 1
 
 
+def test_feedback_clear_and_prediction_revision():
+    def serve(request):
+        if request.url.path.endswith("/clear"):
+            assert json.loads(request.content) == {"user_id": "trusted-subject"}
+            return httpx.Response(200, json={"status": "cleared", "deleted": 2})
+        return httpx.Response(200, json=prediction(feedback_revision="revision-1"))
+
+    with CloneClient(KEY, transport=httpx.MockTransport(serve)) as client:
+        assert client.predict("trusted-subject", REQUEST).feedback_revision == "revision-1"
+        assert client.clear_feedback("trusted-subject").deleted == 2
+
+
+@pytest.mark.asyncio
+async def test_async_feedback_clear():
+    def serve(request):
+        assert json.loads(request.content) == {"user_id": "trusted-subject"}
+        return httpx.Response(200, json={"status": "cleared", "deleted": 1})
+
+    async with AsyncCloneClient(KEY, transport=httpx.MockTransport(serve)) as client:
+        assert (await client.clear_feedback("trusted-subject")).deleted == 1
+
+
 @pytest.mark.parametrize(
     "body",
     [

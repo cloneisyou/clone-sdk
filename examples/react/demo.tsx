@@ -5,6 +5,7 @@ import type { ThreadMessageLike } from '@assistant-ui/react';
 import { TabCompletionInput } from '../../src/react.js';
 import { CloneComposerInput } from '../../src/assistant-ui.js';
 import { createPredictionTransport } from '../../src/transport.js';
+import { createEventTransport } from '../../src/feedback.js';
 import type { CompletionRequest, PredictionTransport } from '../../src/types.js';
 import { CloneModeDemo } from './mode-demo.js';
 import { ComposerEvents } from './composer-events.js';
@@ -45,25 +46,35 @@ function Demo() {
   const [error, setError] = useState('');
   const [faultsEnabled, setFaultsEnabled] = useState(false);
   const [fault, setFault] = useState('none');
+  const [collectText, setCollectText] = useState(false);
+  const [guidance, setGuidance] = useState('');
+  const [lastRequest, setLastRequest] = useState('');
+  const [feedbackRevision, setFeedbackRevision] = useState('');
   const composer = useRef<HTMLDivElement>(null);
-  const [events, setEvents] = useState<(ComposerEvent & { delivery: 'pending' | 'recorded' | 'failed' | 'fixture' })[]>([]);
-  const telemetry = useMemo(() => new ComposerEvents(event => {
+  const [events, setEvents] = useState<(ComposerEvent & { delivery: 'pending' | 'recorded' | 'failed' | 'cancelled' | 'fixture' })[]>([]);
+  const eventTransport = useMemo(() => createEventTransport('/api/clone/events'), []);
+  const telemetry = useMemo(() => new ComposerEvents((event, options) => {
     setEvents(items => [...items.slice(-99), { ...event, delivery: fixture ? 'fixture' : 'pending' }]);
-    if (!fixture) void (async () => {
-      let delivery: 'recorded' | 'failed' = 'failed';
-      try {
-        const response = await fetch('/api/clone/events', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...event, observed_at: Date.now(), session_id: sessionId }) });
-        if (response.ok && (await response.json()).status === 'recorded') delivery = 'recorded';
-      } catch { /* failed telemetry never blocks typing or host submission */ }
-      setEvents(items => items.map(item => item.event_id === event.event_id ? { ...item, delivery } : item));
-    })();
-  }), []);
-  const observe = (event: Parameters<ComposerEvents['observe']>[0]) =>
+    if (!fixture) return eventTransport(event, options);
+  }, { collectSubmittedText: collectText, onDelivery: receipt => {
+    if (fixture) return;
+    const delivery = receipt.status;
+    setEvents(items => items.map(item => item.event_id === receipt.event_id ? { ...item, delivery } : item));
+    measure({ ...receipt, delivery });
+  } }), [eventTransport, collectText]);
+  useEffect(() => () => telemetry.reset(), [telemetry]);
+  const observe = (event: Parameters<ComposerEvents['observe']>[0]) => {
+    if (event.kind === 'presented') setLastRequest(event.request_id);
     telemetry.observe(event, composer.current?.querySelector('textarea')?.value ?? '');
-  const transport = useMemo(() => fixture ? mockTransport : createPredictionTransport('/api/clone/predict', {
+  };
+  const predictionTransport = useMemo(() => fixture ? mockTransport : createPredictionTransport('/api/clone/predict', {
     onMetric: metric => measure({ kind: 'metric', duration_ms: metric.durationMs, status: metric.status, outcome: metric.outcome, code: metric.code }),
   }), []);
+  const transport = useMemo<PredictionTransport>(() => async (request, options) => {
+    const result = await predictionTransport(request, options);
+    if (!options.signal.aborted) setFeedbackRevision(result.feedback_revision ?? '');
+    return result;
+  }, [predictionTransport]);
   const context: Omit<CompletionRequest, 'draft' | 'mode' | 'request_id'> = {
     connection_id: connection || null, session_id: sessionId, context_revision: `${revision}:${conversationRevision}`, language: 'ko',
     messages: conversation,
@@ -153,6 +164,23 @@ function Demo() {
       <button type="submit">Send</button>
     </form>}</div>
     <p role="alert">{error}</p>
+    <details><summary>Feedback loop · test fixture</summary>
+      <label><input type="checkbox" checked={collectText} onChange={event => setCollectText(event.target.checked)} />
+        Share edited submission text (optional)</label>
+      <p><button disabled={!lastRequest} onClick={() => telemetry.feedback(lastRequest, { rating: 'positive' })}>Helpful</button>{' '}
+        <button disabled={!lastRequest} onClick={() => telemetry.rejected(lastRequest, { reason: 'too_long' })}>Reject: too long</button></p>
+      <label>Feedback guidance <input value={guidance} onChange={event => setGuidance(event.target.value)} /></label>{' '}
+      <button disabled={!lastRequest || !guidance.trim()} onClick={() => {
+        telemetry.feedback(lastRequest, { rating: 'negative', guidance, content_opt_in: true }); setGuidance('');
+      }}>Send feedback</button>{' '}
+      <button onClick={() => {
+        if (!fixture) void fetch('/api/clone/clear-feedback', { method: 'POST' }).then(async response => {
+          if (!response.ok) throw new Error('Feedback clear failed');
+          setFeedbackRevision(''); setLastRequest(''); telemetry.reset();
+        }).catch(() => setError('Could not clear feedback.'));
+      }}>Clear feedback</button>
+      <p>Injected feedback revision: <code data-testid="feedback-revision">{feedbackRevision || 'none'}</code></p>
+    </details>
     <h2>Host submit receipts · test fixture</h2>
     <p data-testid="receipt-count">{receipts.length}</p>
     <ul>{receipts.map((text, index) => <li key={index}>{text}</li>)}</ul>

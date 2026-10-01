@@ -1,5 +1,14 @@
 from .client import AsyncCloneClient, CloneClient, CloneError, ConnectionFlow
-from .models import CancelResult, Connection, ConnectionStarted, EventResult, Prediction, RevokeResult, Usage
+from .models import (
+    CancelResult,
+    Connection,
+    ConnectionStarted,
+    EventResult,
+    FeedbackCleared,
+    Prediction,
+    RevokeResult,
+    Usage,
+)
 
 __all__ = [
     "AsyncCloneClient",
@@ -10,8 +19,9 @@ __all__ = [
     "Connection",
     "ConnectionStarted",
     "EventResult",
+    "FeedbackCleared",
     "Prediction",
     "RevokeResult",
     "Usage",
 ]
-__version__ = "0.1.0"
+__version__ = "0.2.0"
