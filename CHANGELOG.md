@@ -1,3 +1,7 @@
+# 0.6.1
+
+- Fix the example host proxy for an empty feedback-clear POST. Add an HTTP regression check for clearing and origin isolation.
+
 # 0.6.0
 
 - Packaged feedback tracker and bounded idempotent delivery.

@@ -1,6 +1,6 @@
 # Feedback loop
 
-SDK 0.6.0 adds `FeedbackTracker`, bounded event delivery, explicit rejection/evaluation/task outcomes, and clearing. These features require the API feedback deployment. Older clients and their five observation kinds remain supported. Missing or failed delivery is unknown, not negative feedback.
+SDK 0.6.1 adds `FeedbackTracker`, bounded event delivery, explicit rejection/evaluation/task outcomes, and clearing. These features require the API feedback deployment. Older clients and their five observation kinds remain supported. Missing or failed delivery is unknown, not negative feedback.
 
 ## Host integration
 
