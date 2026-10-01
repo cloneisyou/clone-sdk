@@ -2,7 +2,7 @@
 
 Implement next-prompt prediction and Tab Completion in the existing customer composer using product context by default, preserving its submission behavior. No Clone end-user account, consent screen or callback is required for this basic path. Offer Clone personalization separately in settings only if desired. Read `README.md`, exported types and `openapi.json`. Do not infer that the customer uses assistant-ui just because the optional adapter exists.
 
-Begin with [start.md](start.md), which covers agent-led self-service app registration and callback updates. This guide supplies the detailed implementation contract for SDK 0.4.0. Verify installed types; 0.3.1 has no typewriter option or Clone mode.
+Begin with [start.md](start.md), which covers agent-led self-service app registration and callback updates. This guide supplies the detailed implementation contract for SDK 0.5.0. Verify installed types; 0.3.1 has no typewriter option or Clone mode.
 
 ## Prerequisites
 
@@ -78,7 +78,7 @@ Telemetry is best effort and must not block input or send. The example shows loc
 
 The prediction endpoint returns one complete JSON object, not SSE or token deltas. `createPredictionTransport` waits for that response, the controller validates it, and the controller validates the complete candidate. By default `useTabCompletion` exposes the full `completion` immediately and `TabCompletionInput` renders it as ghost text. With `presentation: "typewriter"`, the hook exposes a visible prefix until the animation completes; `canAccept` remains false until then. The complete candidate remains in `state.candidate`. This is the default for both empty-composer next prompts and draft completions.
 
-Do not add per-character timers, progressively slice `completion`, or route it through an assistant-message streaming renderer by default. A typewriter animation is an optional presentation choice, not evidence that the API streams. In 0.4.0 set `presentation: "typewriter"` only when the customer's stated preference or an AskUserQuestion answer calls for it; do not ask again for a choice already supplied. The entire candidate must be visible before offering Tab acceptance; never accept only a partial string or send unseen text. Cancel any animation on edits, selection/context changes, dismissal, or expiry. Ordinary manual sending must stay available throughout.
+Do not add per-character timers, progressively slice `completion`, or route it through an assistant-message streaming renderer by default. A typewriter animation is an optional presentation choice, not evidence that the API streams. In 0.5.0 set `presentation: "typewriter"` only when the customer's stated preference or an AskUserQuestion answer calls for it; do not ask again for a choice already supplied. The entire candidate must be visible before offering Tab acceptance; never accept only a partial string or send unseen text. Cancel any animation on edits, selection/context changes, dismissal, or expiry. Ordinary manual sending must stay available throughout.
 
 Verify the installed package version and lockfile, inspect the actual composer adapter, and check the response format before attributing progressive display to the SDK or customer code. A recording alone cannot establish which layer produced an effect. Return evidence that the default renderer shows a complete candidate, Tab inserts it exactly once without sending, and only the host's explicit-send action submits it.
 
