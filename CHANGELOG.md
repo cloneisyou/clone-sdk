@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+
+- Add optional content-free transport timing and outcome observations; broken observers do not affect predictions or submission.
+- Validate isolated customer proxies with opt-in latency and outage injection and private pilot observations. See [pilot validation](docs/pilot-validation.md).
+- Add a typed synchronous and asynchronous [Python client](https://github.com/cloneisyou/clone-sdk/blob/main/python/README.md) for all seven app-key operations, with bounded requests, safe errors and server-owned user identity.
+- Build and verify Python wheels on Python 3.11 and 3.14. Prepare separate, explicit npm and PyPI publication jobs tied to verified release distributions.
+
 ## 0.4.0
 
 - Choose optional grapheme-safe typewriter presentation with `presentation: "typewriter"`; instant remains the default and Tab waits for the complete candidate.

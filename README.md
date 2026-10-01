@@ -9,6 +9,7 @@ Use your product's conversation, selected artifact and user preferences as conte
 - **Headless controller** for custom editors.
 - **React hook and textarea**, plus an optional assistant-ui adapter.
 - **Server client** for prediction, usage and optional account connection.
+- **Python server client**, with sync and async interfaces. See [Python installation and usage](https://github.com/cloneisyou/clone-sdk/blob/main/python/README.md).
 - **Optional Clone mode**, explicitly started by the end user, with preview, Stop and bounded automatic sends. See [Clone mode](docs/clone-mode.md).
 - **Direct HTTPS API** for any backend or custom interface. See [API integration](docs/api.md).
 - **MIT licensed SDK.** The hosted prediction API is a separate service that requires a server-side app key. See [service boundaries](docs/data-and-service.md) and [billing](docs/billing.md).
@@ -89,6 +90,8 @@ pnpm dev
 ```
 
 Open [localhost:4317](http://127.0.0.1:4317). Type, accept with Tab, then send explicitly. Add `?assistant=1` to try assistant-ui. The default demo uses synthetic suggestions and sends nothing to Clone.
+
+For a connected proxy, outage testing and private measurements, follow [pilot validation](docs/pilot-validation.md). Synthetic checks, real model calls and customer acceptance are separate evidence.
 
 ## Choose an entry point
 

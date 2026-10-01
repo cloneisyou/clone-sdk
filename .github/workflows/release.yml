@@ -25,13 +25,17 @@ jobs:
         with:
           name: sdk-package
           path: artifacts
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: python-package
+          path: python-artifacts
       - name: Publish verified GitHub archive
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           (cd artifacts && sha256sum --check ./*.sha256)
-          gh release create "$GITHUB_REF_NAME" artifacts/*.tgz artifacts/*.sha256 \
+          gh release create "$GITHUB_REF_NAME" artifacts/*.tgz artifacts/*.sha256 python-artifacts/*.whl python-artifacts/*.tar.gz \
             --verify-tag --prerelease --title "Clone SDK $GITHUB_REF_NAME" --notes-file CHANGELOG.md
       - name: Verify authenticated release download and installation
         env:

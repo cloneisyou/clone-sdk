@@ -12,6 +12,12 @@ import type { ComposerEvent } from './composer-events.js';
 
 const fixture = new URLSearchParams(location.search).get('connected') !== '1';
 const assistant = new URLSearchParams(location.search).get('assistant') === '1';
+const sessionId = crypto.randomUUID();
+
+function measure(body: Record<string, unknown>) {
+  if (!fixture) void fetch('/api/clone/metrics', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, session_id: sessionId, observed_at: Date.now() }) }).catch(() => {});
+}
 type ConversationTurn = NonNullable<CompletionRequest['messages']>[number] & { role: 'user' | 'assistant' };
 
 const mockTransport: PredictionTransport = async (request, { signal }) => {
@@ -37,6 +43,8 @@ function Demo() {
   ]);
   const [conversationRevision, setConversationRevision] = useState(1);
   const [error, setError] = useState('');
+  const [faultsEnabled, setFaultsEnabled] = useState(false);
+  const [fault, setFault] = useState('none');
   const composer = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<(ComposerEvent & { delivery: 'pending' | 'recorded' | 'failed' | 'fixture' })[]>([]);
   const telemetry = useMemo(() => new ComposerEvents(event => {
@@ -45,7 +53,7 @@ function Demo() {
       let delivery: 'recorded' | 'failed' = 'failed';
       try {
         const response = await fetch('/api/clone/events', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(event) });
+          body: JSON.stringify({ ...event, observed_at: Date.now(), session_id: sessionId }) });
         if (response.ok && (await response.json()).status === 'recorded') delivery = 'recorded';
       } catch { /* failed telemetry never blocks typing or host submission */ }
       setEvents(items => items.map(item => item.event_id === event.event_id ? { ...item, delivery } : item));
@@ -53,9 +61,11 @@ function Demo() {
   }), []);
   const observe = (event: Parameters<ComposerEvents['observe']>[0]) =>
     telemetry.observe(event, composer.current?.querySelector('textarea')?.value ?? '');
-  const transport = useMemo(() => fixture ? mockTransport : createPredictionTransport('/api/clone/predict'), []);
+  const transport = useMemo(() => fixture ? mockTransport : createPredictionTransport('/api/clone/predict', {
+    onMetric: metric => measure({ kind: 'metric', duration_ms: metric.durationMs, status: metric.status, outcome: metric.outcome, code: metric.code }),
+  }), []);
   const context: Omit<CompletionRequest, 'draft' | 'mode' | 'request_id'> = {
-    connection_id: connection || null, session_id: 'example-session', context_revision: `${revision}:${conversationRevision}`, language: 'ko',
+    connection_id: connection || null, session_id: sessionId, context_revision: `${revision}:${conversationRevision}`, language: 'ko',
     messages: conversation,
     artifact: { kind, id: kind === 'video' ? 'timeline-1' : 'deck-1', revision: String(revision),
       selection: kind === 'video' ? 'clip-1 / 00:00–00:08' : 'slide-2', summary: '짧은 제품 소개 초안' },
@@ -81,7 +91,12 @@ function Demo() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Connection failed'); }
   }
   useEffect(() => {
-    if (!fixture) void fetch('/api/clone/state').then(r => r.json()).then(data => setConnection(data.connection_id ?? ''));
+    if (!fixture) {
+      measure({ kind: 'session' });
+      void fetch('/api/clone/state').then(r => r.json()).then(data => {
+        setConnection(data.connection_id ?? ''); setFaultsEnabled(data.faults_enabled === true);
+      }).catch(() => setError('Example backend unavailable. Manual send still works.'));
+    }
   }, []);
   async function disconnect() {
     telemetry.reset(); setDisconnecting(true); setError('');
@@ -102,6 +117,14 @@ function Demo() {
     <p style={{ color: '#64748b' }}>Clone · Tab Completion integration example</p>
     <h1>Complete your next instruction</h1>
     <p>{fixture ? 'Fixture mode: deterministic suggestions for interaction tests.' : 'API mode: suggestions from your product context. Clone personalization is optional.'}</p>
+    {faultsEnabled && <label>Local proxy fault <select aria-label="Local proxy fault" value={fault} onChange={event => {
+      const next = event.target.value;
+      void fetch('/api/clone/test-fault', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fault: next }) }).then(response => {
+          if (response.ok) { telemetry.reset(); setFault(next); setRevision(n => n + 1); }
+        }).catch(() => setError('Could not change the local test fault.'));
+    }}>{['none', '503', '429', '402', 'network', 'malformed', 'timeout', 'latency'].map(value =>
+      <option key={value} value={value}>{value}</option>)}</select></label>}
     <label>Context <select aria-label="Context" value={kind} onChange={event => {
       telemetry.reset();
       setKind(event.target.value as 'video' | 'slides'); setRevision(n => n + 1);

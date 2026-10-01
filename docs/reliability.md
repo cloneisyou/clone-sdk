@@ -12,6 +12,8 @@ The developer console reports your app's current requests-per-minute limit and p
 
 Before increasing traffic, measure latency, accepted versus rejected requests, timeouts and normal composer behavior in your integration. Ask Clone for a capacity review when your expected peak exceeds the app limit.
 
+Use optional `onMetric` on `createPredictionTransport` to observe duration, outcome and HTTP status without logging draft text. The [pilot validation guide](pilot-validation.md) covers real proxy fault injection and opt-in measurements.
+
 ## Errors
 
 | Status / code | Integration behavior |

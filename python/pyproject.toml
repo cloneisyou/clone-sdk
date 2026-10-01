@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling==1.31.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clone-sdk"
+version = "0.1.0"
+description = "Server-side Python client for Clone prompt predictions."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["httpx>=0.28.1,<1", "pydantic>=2.7,<3"]
+classifiers = ["Programming Language :: Python :: 3", "Typing :: Typed"]
+
+[project.urls]
+Homepage = "https://clone.is/clone-sdk"
+Repository = "https://github.com/cloneisyou/clone-sdk"
+Documentation = "https://clone.is/docs"
+Issues = "https://github.com/cloneisyou/clone-sdk/issues"
+
+[dependency-groups]
+dev = ["pytest>=8.3,<10", "pytest-asyncio>=0.25,<2", "ruff>=0.9,<1", "build>=1.2,<2", "twine>=6,<7"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clone_sdk"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

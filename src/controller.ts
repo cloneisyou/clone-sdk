@@ -61,13 +61,13 @@ export class CompletionController {
     try { this.options.onEvent?.({ request_id, kind }); } catch { /* telemetry never controls typing */ }
   }
 
-  private invalidate() {
+  private invalidate(reason?: unknown) {
     this.generation++;
     clearTimeout(this.timer);
     clearTimeout(this.expiry);
     clearTimeout(this.animation);
     clearTimeout(this.deadline);
-    this.abort?.abort();
+    this.abort?.abort(reason);
     this.abort = undefined;
   }
 
@@ -100,7 +100,7 @@ export class CompletionController {
     const timeout = this.options.requestTimeoutMs ?? 15_000;
     this.deadline = setTimeout(() => {
       if (generation !== this.generation || this.disposed) return;
-      this.invalidate();
+      this.invalidate(new DOMException('Prediction timed out', 'TimeoutError'));
       this.emit({ status: 'unavailable', candidate: null, error: 'prediction_timeout' });
     }, Number.isFinite(timeout) ? Math.max(1, Math.min(timeout, 30_000)) : 15_000);
     try {

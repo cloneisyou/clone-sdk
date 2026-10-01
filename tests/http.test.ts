@@ -4,6 +4,46 @@ import { readResponse } from '../src/http.js';
 import type { CompletionRequest } from '../src/types.js';
 
 describe('HTTP response boundary', () => {
+  it('reports safe timing through body completion and tolerates a broken observer', async () => {
+    const metrics: unknown[] = [];
+    const input = { request_id: 'private-request', draft: { text: 'private draft' } } as CompletionRequest;
+    const transport = createPredictionTransport('/api/predict', {
+      fetch: vi.fn().mockResolvedValue(Response.json({ status: 'suggested', completion: 'private output' })),
+      onMetric: metric => { metrics.push(metric); throw new Error('observer unavailable'); },
+    });
+    await expect(transport(input, { signal: new AbortController().signal })).resolves.toMatchObject({ status: 'suggested' });
+    expect(metrics).toEqual([{ durationMs: expect.any(Number), status: 200, outcome: 'suggested' }]);
+    expect(JSON.stringify(metrics)).not.toContain('private');
+  });
+
+  it('measures a failed body read and cancellation without swallowing the original error', async () => {
+    const metrics = vi.fn();
+    const abort = new AbortController();
+    const error = new DOMException('private error details', 'AbortError');
+    const transport = createPredictionTransport('/api/predict', {
+      fetch: vi.fn().mockRejectedValue(error), onMetric: metrics,
+    });
+    await expect(transport({} as CompletionRequest, { signal: abort.signal })).rejects.toBe(error);
+    expect(metrics).toHaveBeenCalledWith({ durationMs: expect.any(Number), status: 0, outcome: 'cancelled', code: 'cancelled' });
+  });
+  it('counts deadline expiry as a failure rather than user cancellation', async () => {
+    const metrics = vi.fn();
+    const abort = new AbortController();
+    abort.abort(new DOMException('Private details', 'TimeoutError'));
+    const transport = createPredictionTransport('/api/predict', {
+      fetch: vi.fn().mockRejectedValue(new DOMException('Aborted', 'AbortError')), onMetric: metrics,
+    });
+    await expect(transport({} as CompletionRequest, { signal: abort.signal })).rejects.toBeInstanceOf(DOMException);
+    expect(metrics).toHaveBeenCalledWith({ durationMs: expect.any(Number), status: 0, outcome: 'failed', code: 'prediction_timeout' });
+  });
+  it('reports an invalid success envelope as a failure', async () => {
+    const metrics = vi.fn();
+    const transport = createPredictionTransport('/api/predict', {
+      fetch: vi.fn().mockResolvedValue(Response.json({ private: 'invalid response' })), onMetric: metrics,
+    });
+    await expect(transport({} as CompletionRequest, { signal: new AbortController().signal })).rejects.toMatchObject({ code: 'invalid_response' });
+    expect(metrics).toHaveBeenCalledWith({ durationMs: expect.any(Number), status: 200, outcome: 'failed', code: 'invalid_response' });
+  });
   it.each(['null', '[]', '"text"', '', '<html>upstream unavailable</html>'])(
     'rejects a successful non-object response: %s', async body => {
       await expect(readResponse(new Response(body))).rejects.toMatchObject({
