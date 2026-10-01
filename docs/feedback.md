@@ -1,6 +1,6 @@
 # Feedback loop
 
-SDK 0.6.1 adds `FeedbackTracker`, bounded event delivery, explicit rejection/evaluation/task outcomes, and clearing. These features require the API feedback deployment. Older clients and their five observation kinds remain supported. Missing or failed delivery is unknown, not negative feedback.
+SDK 0.6.2 adds `FeedbackTracker`, bounded event delivery, explicit rejection/evaluation/task outcomes, and clearing. These features require the API feedback deployment. Older clients and their five observation kinds remain supported. Missing or failed delivery is unknown, not negative feedback.
 
 ## Host integration
 
@@ -11,16 +11,21 @@ const feedback = new FeedbackTracker(createEventTransport('/api/clone/events'), 
   collectSubmittedText: false, // default: no submitted text collection
   onDelivery: receipt => diagnostics.record(receipt), // content-free
 });
-// Supply onEvent to the composer component/controller.
-const onEvent = event => feedback.observe(event, composer.value);
-// Observe SDK insertion and later human input changes.
-composer.addEventListener('input', () => feedback.input(composer.value));
+// Create the tracker once per identity scope, not on every render.
+// Supply onEvent and onValueChange to the composer component/controller.
+const onEvent = event => feedback.observe(event, draft);
+const onValueChange = value => {
+  feedback.input(value); // includes SDK insertion, human edits and Undo
+  setDraft(value);
+};
 // Call only AFTER the existing host send succeeds.
 function onHostSendSucceeded(text) {
   const origin = feedback.submitted(text);
   conversation.append({ role: 'user', content: text, origin });
 }
 ```
+
+For React, pass both callbacks to `TabCompletionInput` or `useTabCompletion`. For a headless/custom editor, call `feedback.input(nextValue)` immediately after applying an accepted suggestion and after every later value change. Programmatic insertion does not necessarily emit a native DOM `input` event; listening only to DOM typing events is insufficient. Keep the tracker stable between renders and reset it when the identity scope changes.
 
 The authenticated host route calls `clone.recordEvent(session.user.id, body)`; Python uses `client.record_event(session.user.id, body)`. The server supplies the subject, never the browser body. Keep app keys on the server. Installing a package cannot connect your authentication, send or task-result callbacks automatically; wire these once in the host.
 
@@ -40,7 +45,7 @@ feedback.outcome(requestId, 'succeeded'); // the host must observe the actual ta
 
 Kinds: `presented`, `accepted`, `edited`, `dismissed`, `submitted`, `rejected`, `feedback`, `outcome`. Presented means offered, not read; accepted means inserted, not sent. Escape/blur/expiry/silence is not explicit rejection. Sending is not task success. Automatic prompts are agent-origin, not manual acceptance or independently human-written preferences.
 
-Ratings: `positive`, `negative`. Reasons: `too_long`, `too_short`, `wrong_intent`, `wrong_language`, `incorrect`, `other`. Guidance has a 1,000-character limit and requires `content_opt_in: true`. With `collectSubmittedText: true`, the tracker sends `final_text` only after an edited prediction-assisted draft is successfully sent. The API limits it to 4,000 characters. It never uploads per-character text, an unfinished edit or unchanged generated text. The API validates field/kind combinations.
+Ratings: `positive`, `negative`. Reasons: `too_long`, `too_short`, `wrong_intent`, `wrong_language`, `incorrect`, `other`. Guidance has a 1,000-character limit and requires `content_opt_in: true`. With `collectSubmittedText: true`, the tracker sends `final_text` only after an edited prediction-assisted draft is successfully sent. The API limits it to 4,000 Unicode characters. Longer edits send submission attribution only, so optional text collection cannot prevent the event from being recorded. It never uploads per-character text, an unfinished edit or unchanged generated text. The API validates field/kind combinations.
 
 ## Server memory and forgetting
 
