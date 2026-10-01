@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { CloneClient } from '../../src/server.js';
 import { ClonePredictionError } from '../../src/transport.js';
 import type { ConnectionFlow } from '../../src/server.js';
-import { createPilotRecorder } from './pilot-observations.js';
+import { createPilotRecorder, createPredictionSources } from './pilot-observations.js';
 
 const port = Number(process.env.CLONE_SDK_DEMO_PORT || 4317);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid CLONE_SDK_DEMO_PORT');
@@ -24,8 +24,9 @@ export default defineConfig({
     const faultsEnabled = process.env.CLONE_DEMO_FAULTS === '1';
     const faults = new Set(['none', '503', '429', '402', 'network', 'malformed', 'timeout', 'latency']);
     let fault = 'none';
-    const record = createPilotRecorder(process.env.CLONE_SDK_METRICS_FILE,
-      process.env.CLONE_DEMO_PROVIDER_MODE === 'live' ? 'live' : 'fixture', process.env.CLONE_SDK_PILOT_LABEL);
+    const providerSource = process.env.CLONE_DEMO_PROVIDER_MODE === 'live' ? 'live' : 'fixture';
+    const predictionSources = createPredictionSources(providerSource);
+    const record = createPilotRecorder(process.env.CLONE_SDK_METRICS_FILE, providerSource, process.env.CLONE_SDK_PILOT_LABEL);
     let flow: ConnectionFlow | null = null;
     let connectionId = '';
     server.middlewares.use(async (req, res, next) => {
@@ -71,7 +72,10 @@ export default defineConfig({
           fault = body.fault; return json(200, { fault });
         }
         if (url.pathname === '/api/clone/metrics') {
-          record({ ...body, source: fault === 'none' ? undefined : 'fault' });
+          const source = body.kind === 'session' ? providerSource : predictionSources.get(body.request_id);
+          // Unattributed observations cannot be counted as live usage. Source
+          // comes from server-owned prediction admission, never a browser label.
+          if (source) record({ ...body, source });
           return json(200, { status: 'recorded' });
         }
         if (url.pathname === '/api/clone/events') {
@@ -79,17 +83,19 @@ export default defineConfig({
           const { observed_at, session_id, ...event } = body;
           try {
             const result = await client.recordEvent(user, event);
-            record({ ...event, observed_at, session_id, delivery: 'recorded' });
+            const source = predictionSources.get(event.request_id);
+            if (source) record({ ...event, observed_at, session_id, source, delivery: 'recorded' });
             return json(200, result);
           } catch (error) {
-            record({ ...event, observed_at, session_id, delivery: 'failed' }); throw error;
+            const source = predictionSources.get(event.request_id);
+            if (source) record({ ...event, observed_at, session_id, source, delivery: 'failed' }); throw error;
           }
         }
         // The server session owns optional personalization, never the browser body.
         if ((body.connection_id ?? null) !== (connectionId || null)) return json(403, { detail: { code: 'connection_mismatch' } });
         if (url.pathname === '/api/clone/predict') {
           record({ kind: 'prediction', request_id: body.request_id, session_id: body.session_id,
-            source: fault === 'none' ? undefined : 'fault' });
+            source: predictionSources.register(body.request_id, fault !== 'none') });
           if (fault === 'network') { res.destroy(); return; }
           if (fault === 'timeout') {
             res.writeHead(200, { 'Content-Type': 'application/json' }); res.write('{'); return;

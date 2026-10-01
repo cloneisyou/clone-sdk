@@ -31,3 +31,5 @@ The report separates fixture, fault and live data; shows p50/p95 latency, failur
 ## Acceptance boundary
 
 A local fixture validates package installation, HTTP wiring and interaction behavior. A live-provider run validates actual model latency and billing receipts. A customer run validates that customer's editor and integration. Each is separate evidence. Do not start broad outreach on the strength of fixture results alone.
+
+The example preserves each prediction's source for its metrics and event deliveries even after a fault changes. Source labels come from server admission. Unrecognized observations are omitted; the loopback example retains attribution for the latest 1,000 requests, rather than persisting a production analytics store.

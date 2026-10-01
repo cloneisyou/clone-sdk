@@ -2,7 +2,7 @@ import { it, expect } from 'vitest';
 import { mkdtemp, readFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createPilotRecorder } from '../examples/react/pilot-observations.js';
+import { createPilotRecorder, createPredictionSources } from '../examples/react/pilot-observations.js';
 
 it('stores whitelisted measurements with private, consistent request hashes', async () => {
   const file = join(await mkdtemp(join(tmpdir(), 'clone-pilot-')), 'observations.ndjson');
@@ -18,4 +18,18 @@ it('stores whitelisted measurements with private, consistent request hashes', as
   expect(rows[0].request_id).toBe(rows[1].request_id);
   expect(rows[0].pilot).toBe('test-pilot');
   expect((await stat(file)).mode & 0o777).toBe(0o600);
+});
+
+it('keeps delayed fault observations out of live metrics and bounds attribution memory', () => {
+  const source = createPredictionSources('live');
+  source.register('slow-fault', true);
+  source.register('new-live', false);
+  expect(source.get('slow-fault')).toBe('fault');
+  expect(source.get('new-live')).toBe('live');
+  // Retrying the same request after fault recovery cannot relabel its origin.
+  expect(source.register('slow-fault', false)).toBe('fault');
+  expect(source.get('unknown-browser-request')).toBeUndefined();
+  for (let index = 0; index < 1000; index++) source.register(String(index), false);
+  expect(source.get('slow-fault')).toBeUndefined();
+  expect(source.get('999')).toBe('live');
 });

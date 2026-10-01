@@ -67,9 +67,11 @@ function Demo() {
     if (event.kind === 'presented') setLastRequest(event.request_id);
     telemetry.observe(event, composer.current?.querySelector('textarea')?.value ?? '');
   };
-  const predictionTransport = useMemo(() => fixture ? mockTransport : createPredictionTransport('/api/clone/predict', {
-    onMetric: metric => measure({ kind: 'metric', duration_ms: metric.durationMs, status: metric.status, outcome: metric.outcome, code: metric.code }),
-  }), []);
+  const predictionTransport = useMemo<PredictionTransport>(() => fixture ? mockTransport : (request, options) =>
+    createPredictionTransport('/api/clone/predict', {
+      onMetric: metric => measure({ kind: 'metric', request_id: request.request_id,
+        duration_ms: metric.durationMs, status: metric.status, outcome: metric.outcome, code: metric.code }),
+    })(request, options), []);
   const transport = useMemo<PredictionTransport>(() => async (request, options) => {
     const result = await predictionTransport(request, options);
     if (!options.signal.aborted) setFeedbackRevision(result.feedback_revision ?? '');
