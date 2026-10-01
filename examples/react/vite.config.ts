@@ -60,6 +60,7 @@ export default defineConfig({
           if (connectionId) await client.revoke(user, connectionId);
           connectionId = ''; return json(200, { status: 'revoked' });
         }
+        if (url.pathname === '/api/clone/clear-feedback') return json(200, await client.clearFeedback(user));
         let raw = '';
         for await (const chunk of req) {
           raw += chunk; if (Buffer.byteLength(raw) > 300_000) return json(413, { detail: { code: 'body_too_large' } });
@@ -84,7 +85,6 @@ export default defineConfig({
             record({ ...event, observed_at, session_id, delivery: 'failed' }); throw error;
           }
         }
-        if (url.pathname === '/api/clone/clear-feedback') return json(200, await client.clearFeedback(user));
         // The server session owns optional personalization, never the browser body.
         if ((body.connection_id ?? null) !== (connectionId || null)) return json(403, { detail: { code: 'connection_mismatch' } });
         if (url.pathname === '/api/clone/predict') {
