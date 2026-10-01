@@ -21,10 +21,12 @@ test('pilot report separates synthetic sources and requires ordered delivered ev
   ]);
   assert.deepEqual(result.onboarding, [{ pilot: 'pilot-a', minutes: 2 }]);
   assert.equal(result.support_minutes, 3);
+  assert.equal(result.support_records, 1);
   assert.equal(result.sources.live.accepted_with_timestamps, 2);
   assert.equal(result.sources.live.submitted_after_acceptance, 1);
   assert.equal(result.sources.live.sessions_observed, 1);
   assert.equal(result.sources.live.p95_ms, 90);
   assert.equal(result.sources.fixture.timed_requests, 1);
   assert.equal(result.sources.live.failed_event_deliveries, 1);
+  assert.equal(summarize([]).support_minutes, null);
 });

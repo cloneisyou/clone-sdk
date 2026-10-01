@@ -2,7 +2,7 @@ import { appendFile, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 export function summarize(records) {
-  const result = { sources: {}, onboarding: [], support_minutes: 0 };
+  const result = { sources: {}, onboarding: [], support_minutes: null, support_records: 0 };
   const starts = new Map();
   for (const row of records) {
     if (row.kind === 'onboarding_started') starts.set(row.pilot, row.recorded_at);
@@ -10,7 +10,10 @@ export function summarize(records) {
       result.onboarding.push({ pilot: row.pilot, minutes: (row.recorded_at - starts.get(row.pilot)) / 60_000 });
       starts.delete(row.pilot);
     }
-    if (row.kind === 'support') result.support_minutes += row.minutes;
+    if (row.kind === 'support' && Number.isFinite(row.minutes) && row.minutes >= 0) {
+      result.support_minutes = (result.support_minutes ?? 0) + row.minutes;
+      result.support_records++;
+    }
   }
   for (const source of ['fixture', 'fault', 'live']) {
     const rows = records.filter(row => row.source === source);
