@@ -58,7 +58,8 @@ export class CompletionController {
   }
 
   private event(request_id: string, kind: 'presented' | 'accepted' | 'dismissed') {
-    try { this.options.onEvent?.({ request_id, kind }); } catch { /* telemetry never controls typing */ }
+    try { void Promise.resolve(this.options.onEvent?.({ request_id, kind })).catch(() => {}); }
+    catch { /* telemetry never controls typing */ }
   }
 
   private invalidate(reason?: unknown) {

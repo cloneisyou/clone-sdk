@@ -261,11 +261,28 @@
       "EventInput": {
         "additionalProperties": false,
         "properties": {
+          "content_opt_in": {
+            "default": false,
+            "title": "Content Opt In",
+            "type": "boolean"
+          },
           "event_id": {
             "maxLength": 80,
             "minLength": 1,
             "pattern": "^[A-Za-z0-9._:-]+$",
             "title": "Event Id",
+            "type": "string"
+          },
+          "final_text": {
+            "default": "",
+            "maxLength": 4000,
+            "title": "Final Text",
+            "type": "string"
+          },
+          "guidance": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Guidance",
             "type": "string"
           },
           "kind": {
@@ -274,10 +291,62 @@
               "accepted",
               "edited",
               "dismissed",
-              "submitted"
+              "submitted",
+              "rejected",
+              "feedback",
+              "outcome"
             ],
             "title": "Kind",
             "type": "string"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "succeeded",
+                  "failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "enum": [
+                  "positive",
+                  "negative"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "too_long",
+                  "too_short",
+                  "wrong_intent",
+                  "wrong_language",
+                  "incorrect",
+                  "other"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           },
           "request_id": {
             "maxLength": 80,
@@ -285,6 +354,22 @@
             "pattern": "^[A-Za-z0-9._:-]+$",
             "title": "Request Id",
             "type": "string"
+          },
+          "submission_origin": {
+            "anyOf": [
+              {
+                "enum": [
+                  "accepted_prediction",
+                  "edited_prediction",
+                  "agent"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission Origin"
           },
           "user_id": {
             "maxLength": 200,
@@ -315,6 +400,27 @@
           "status"
         ],
         "title": "EventOutput",
+        "type": "object"
+      },
+      "FeedbackClearOutput": {
+        "additionalProperties": false,
+        "properties": {
+          "deleted": {
+            "minimum": 0.0,
+            "title": "Deleted",
+            "type": "integer"
+          },
+          "status": {
+            "const": "cleared",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "deleted"
+        ],
+        "title": "FeedbackClearOutput",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -402,6 +508,11 @@
           },
           "draft": {
             "$ref": "#/components/schemas/Draft"
+          },
+          "feedback_enabled": {
+            "default": true,
+            "title": "Feedback Enabled",
+            "type": "boolean"
           },
           "language": {
             "default": "auto",
@@ -497,6 +608,11 @@
           "expires_at": {
             "title": "Expires At",
             "type": "integer"
+          },
+          "feedback_revision": {
+            "default": "",
+            "title": "Feedback Revision",
+            "type": "string"
           },
           "grant_revision": {
             "title": "Grant Revision",
@@ -880,7 +996,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -900,7 +1016,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [
@@ -1056,7 +1172,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -1076,7 +1192,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [
@@ -1243,7 +1359,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -1263,7 +1379,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [
@@ -1419,7 +1535,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -1439,7 +1555,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [
@@ -1448,6 +1564,182 @@
           }
         ],
         "summary": "Event",
+        "tags": [
+          "Tab Predictions"
+        ]
+      }
+    },
+    "/v1/prediction-feedback/clear": {
+      "post": {
+        "operationId": "clear_feedback_v1_prediction_feedback_clear_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackClearOutput"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Invalid connection or request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Invalid, rotated, revoked or inactive app key"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Sandbox exhausted or monthly spending cap reached"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Connection revoked or access denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Resource unavailable or feature disabled"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Idempotency, in-flight request or context revision conflict"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Connection attempt or prediction recovery window expired"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Context exceeds the supported envelope"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Rate limit exceeded"
+          },
+          "499": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Prediction request cancelled"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Prediction provider failed"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Prediction service unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOutput"
+                }
+              }
+            },
+            "description": "Prediction provider timed out"
+          }
+        },
+        "security": [
+          {
+            "CloneAppKey": []
+          }
+        ],
+        "summary": "Clear Feedback",
         "tags": [
           "Tab Predictions"
         ]
@@ -1595,7 +1887,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -1615,7 +1907,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [
@@ -1782,7 +2074,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -1802,7 +2094,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [
@@ -1938,7 +2230,7 @@
                 }
               }
             },
-            "description": "Prediction service failed"
+            "description": "Prediction provider failed"
           },
           "503": {
             "content": {
@@ -1958,7 +2250,7 @@
                 }
               }
             },
-            "description": "Prediction service timed out"
+            "description": "Prediction provider timed out"
           }
         },
         "security": [

@@ -53,6 +53,9 @@ export class CloneClient {
   recordEvent(userId: string, event: Omit<PredictionEvent, 'user_id'>): Promise<components['schemas']['EventOutput']> {
     return this.call('/prediction-events', { ...event, user_id: userId });
   }
+  clearFeedback(userId: string): Promise<components['schemas']['FeedbackClearOutput']> {
+    return this.call('/prediction-feedback/clear', { user_id: userId });
+  }
   cancel(userId: string, requestId: string): Promise<components['schemas']['CancelOutput']> {
     return this.call('/predictions/' + encodeURIComponent(requestId) + '/cancel', { user_id: userId });
   }

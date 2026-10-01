@@ -40,6 +40,7 @@ describe('server client trust boundary', () => {
     const signal = new AbortController().signal;
     await client.predict('owner', { ...request, user_id: 'forged' } as CompletionRequest, { signal });
     await client.recordEvent('owner', { event_id: 'event', request_id: 'request', kind: 'accepted', user_id: 'forged' } as PredictionEvent);
+    await client.clearFeedback('owner');
     for (const [, init] of fetch.mock.calls) {
       expect(JSON.parse(init!.body as string).user_id).toBe('owner');
       expect(init!.headers).toMatchObject({ Authorization: 'Bearer clnp_fixture' });

@@ -9,6 +9,7 @@ Base URL: `https://api.clone.is`. Send `Authorization: Bearer <app key>` from yo
 | POST | `/v1/predictions` | Complete a draft or predict the next prompt |
 | POST | `/v1/predictions/{request_id}/cancel` | Cancel pending work for the authenticated subject |
 | POST | `/v1/prediction-events` | Record a presentation, acceptance, edit, dismissal or successful submission |
+| POST | `/v1/prediction-feedback/clear` | Clear the authenticated product user's feedback memory |
 | GET | `/v1/usage` | App usage, billing model, remaining sandbox allowance and configured hard limit |
 | POST | `/v1/connections` | Start optional user-authorized personalization |
 | POST | `/v1/connections/exchange` | Exchange the one-time callback with PKCE and the same subject |
@@ -42,7 +43,7 @@ The result echoes request/session/draft/context/connection identity. `usage.pred
 
 ## Observation events
 
-Send `{ "event_id": "event-001", "request_id": "first-prediction-001", "user_id": "your-authenticated-user", "kind": "presented" }` to `/v1/prediction-events`. Allowed kinds are `presented`, `accepted`, `edited`, `dismissed`, `submitted`. Keep the same event ID on retries. Include no prompt text. Events do not change billing.
+Send `{ "event_id": "event-001", "request_id": "first-prediction-001", "user_id": "your-authenticated-user", "kind": "presented" }` to `/v1/prediction-events`. Kinds are `presented`, `accepted`, `edited`, `dismissed`, `submitted`, `rejected`, `feedback`, `outcome`. Keep the same event ID/body on retries. Ordinary observations contain no prompt text. Optional evaluation guidance and edited submitted text require explicit content opt-in; see [feedback](feedback.md). Events do not change billing.
 
 Record `submitted` only after your host accepts the send. Automatic Clone mode prompts have message origin `agent`; they must not be counted as independently human-written preferences or manual Tab acceptance.
 

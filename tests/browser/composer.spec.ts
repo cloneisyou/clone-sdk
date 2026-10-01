@@ -72,6 +72,36 @@ for (const assistant of [false, true]) {
       expect(events.every((event: { delivery: string }) => event.delivery === 'fixture')).toBe(true);
       expect(JSON.stringify(events)).not.toContain('초안');
     });
+    test('opted-in edited submission retains attribution and final text', async ({ page }) => {
+      await page.getByText('Feedback loop · test fixture', { exact: true }).click();
+      await page.getByRole('checkbox', { name: 'Share edited submission text (optional)' }).check();
+      const input = page.getByRole('textbox', { name: 'Instruction' });
+      await input.fill('초안');
+      await expect(page.locator('[data-clone-suggestion] span')).not.toBeEmpty();
+      await input.press('Tab'); await input.pressSequentially('!'); await input.press('Enter');
+      await expect(page.getByTestId('receipt-count')).toHaveText('1');
+      const events = JSON.parse(await page.getByTestId('observation-events').textContent() ?? '[]');
+      expect(events.find((event: { kind: string }) => event.kind === 'submitted')).toMatchObject({
+        submission_origin: 'edited_prediction', content_opt_in: true, final_text: '초안 더 짧게 편집해줘.!',
+      });
+    });
+    test('explicit rejection and evaluation do not send the draft', async ({ page }) => {
+      await page.getByText('Feedback loop · test fixture', { exact: true }).click();
+      const input = page.getByRole('textbox', { name: 'Instruction' });
+      await input.fill('초안');
+      await expect(page.locator('[data-clone-suggestion] span')).not.toBeEmpty();
+      await page.getByRole('button', { name: 'Reject: too long' }).click();
+      await expect(page.getByTestId('receipt-count')).toHaveText('0');
+      await page.getByRole('checkbox', { name: 'Share edited submission text (optional)' }).check();
+      await page.getByRole('textbox', { name: 'Feedback guidance' }).fill('Use one sentence.');
+      await page.getByRole('button', { name: 'Send feedback', exact: true }).click();
+      const events = JSON.parse(await page.getByTestId('observation-events').textContent() ?? '[]');
+      expect(events.find((event: { kind: string }) => event.kind === 'rejected')).toMatchObject({ reason: 'too_long' });
+      expect(events.find((event: { kind: string }) => event.kind === 'feedback')).toMatchObject({
+        guidance: 'Use one sentence.', content_opt_in: true,
+      });
+      await expect(page.getByTestId('receipt-count')).toHaveText('0');
+    });
     test('does not attribute manual submission after Undo removes the completion', async ({ page }) => {
       const input = page.getByRole('textbox', { name: 'Instruction' });
       await input.fill('초안');

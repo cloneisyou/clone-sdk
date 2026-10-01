@@ -1,7 +1,8 @@
 import { appendFile } from 'node:fs/promises';
 import { createHmac, randomBytes } from 'node:crypto';
 
-const kinds = new Set(['session', 'prediction', 'presented', 'accepted', 'edited', 'dismissed', 'submitted', 'metric']);
+const kinds = new Set(['session', 'prediction', 'presented', 'accepted', 'edited', 'dismissed', 'submitted', 'metric',
+  'rejected', 'feedback', 'outcome']);
 const sources = new Set(['fixture', 'live', 'fault']);
 
 /** Opt-in, local-only pilot measurements. Never store prompts, keys or user IDs. */
@@ -32,7 +33,8 @@ export function createPilotRecorder(file?: string, source = 'fixture', pilot?: s
     }
     if (['suggested', 'abstained', 'failed', 'cancelled'].includes(String(input.outcome))) record.outcome = input.outcome;
     if (typeof input.code === 'string' && /^[a-z][a-z0-9_]{0,127}$/.test(input.code)) record.code = input.code;
-    if (['recorded', 'failed'].includes(String(input.delivery))) record.delivery = input.delivery;
+    if (['recorded', 'failed', 'cancelled'].includes(String(input.delivery))) record.delivery = input.delivery;
+    if (input.kind === 'outcome' && ['succeeded', 'failed'].includes(String(input.outcome))) record.task_outcome = input.outcome;
     // Serialize append order; a recording failure is isolated from the composer.
     pending = pending.then(() => appendFile(file, JSON.stringify(record) + '\n', { mode: 0o600 }))
       .catch(() => { console.warn('Pilot observation could not be written'); });

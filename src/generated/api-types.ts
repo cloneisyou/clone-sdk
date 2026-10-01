@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/prediction-feedback/clear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Clear Feedback */
+        post: operations["clear_feedback_v1_prediction_feedback_clear_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/predictions": {
         parameters: {
             query?: never;
@@ -224,15 +241,38 @@ export interface components {
         };
         /** EventInput */
         EventInput: {
+            /**
+             * Content Opt In
+             * @default false
+             */
+            content_opt_in?: boolean;
             /** Event Id */
             event_id: string;
+            /**
+             * Final Text
+             * @default
+             */
+            final_text?: string;
+            /**
+             * Guidance
+             * @default
+             */
+            guidance?: string;
             /**
              * Kind
              * @enum {string}
              */
-            kind: "presented" | "accepted" | "edited" | "dismissed" | "submitted";
+            kind: "presented" | "accepted" | "edited" | "dismissed" | "submitted" | "rejected" | "feedback" | "outcome";
+            /** Outcome */
+            outcome?: ("succeeded" | "failed") | null;
+            /** Rating */
+            rating?: ("positive" | "negative") | null;
+            /** Reason */
+            reason?: ("too_long" | "too_short" | "wrong_intent" | "wrong_language" | "incorrect" | "other") | null;
             /** Request Id */
             request_id: string;
+            /** Submission Origin */
+            submission_origin?: ("accepted_prediction" | "edited_prediction" | "agent") | null;
             /** User Id */
             user_id: string;
         };
@@ -243,6 +283,16 @@ export interface components {
              * @constant
              */
             status: "recorded";
+        };
+        /** FeedbackClearOutput */
+        FeedbackClearOutput: {
+            /** Deleted */
+            deleted: number;
+            /**
+             * Status
+             * @constant
+             */
+            status: "cleared";
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -273,6 +323,11 @@ export interface components {
             /** Context Revision */
             context_revision: string;
             draft: components["schemas"]["Draft"];
+            /**
+             * Feedback Enabled
+             * @default true
+             */
+            feedback_enabled?: boolean;
             /**
              * Language
              * @default auto
@@ -311,6 +366,11 @@ export interface components {
             draft_revision: number;
             /** Expires At */
             expires_at: number;
+            /**
+             * Feedback Revision
+             * @default
+             */
+            feedback_revision?: string;
             /** Grant Revision */
             grant_revision: number;
             /** Prediction Id */
@@ -531,7 +591,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -549,7 +609,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
@@ -681,7 +741,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -699,7 +759,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
@@ -833,7 +893,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -851,7 +911,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
@@ -983,7 +1043,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -1001,7 +1061,157 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
+            504: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+        };
+    };
+    clear_feedback_v1_prediction_feedback_clear_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubjectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackClearOutput"];
+                };
+            };
+            /** @description Invalid connection or request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Invalid, rotated, revoked or inactive app key */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Sandbox exhausted or monthly spending cap reached */
+            402: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Connection revoked or access denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Resource unavailable or feature disabled */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Idempotency, in-flight request or context revision conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Connection attempt or prediction recovery window expired */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Context exceeds the supported envelope */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Prediction request cancelled */
+            499: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Prediction provider failed */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Prediction service unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorOutput"];
+                };
+            };
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
@@ -1133,7 +1343,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -1151,7 +1361,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
@@ -1285,7 +1495,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -1303,7 +1513,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
@@ -1422,7 +1632,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service failed */
+            /** @description Prediction provider failed */
             502: {
                 headers: {
                     [name: string]: unknown;
@@ -1440,7 +1650,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorOutput"];
                 };
             };
-            /** @description Prediction service timed out */
+            /** @description Prediction provider timed out */
             504: {
                 headers: {
                     [name: string]: unknown;
