@@ -1,3 +1,8 @@
+# 0.6.3
+
+- Keep pilot metrics and feedback events attributed to the originating prediction source. Fault tests remain separate from live and fixture usage after delayed responses, retries or source changes.
+- Include request attribution in example transport metrics and omit unrecognized observations instead of counting them as live usage. Attribution memory is bounded to the latest 1,000 predictions per example server.
+
 # 0.6.2
 
 - Keep successful submission events when an opted-in edited text exceeds the API content limit; omit the optional text instead of losing the event.

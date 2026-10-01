@@ -5,6 +5,21 @@ const kinds = new Set(['session', 'prediction', 'presented', 'accepted', 'edited
   'rejected', 'feedback', 'outcome']);
 const sources = new Set(['fixture', 'live', 'fault']);
 
+/** Preserve the source of each prediction across late events and fault changes. */
+export function createPredictionSources(source: 'fixture' | 'live') {
+  const requests = new Map<string, 'fixture' | 'live' | 'fault'>();
+  return {
+    register(request: string, fault: boolean) {
+      if (!requests.has(request)) requests.set(request, fault ? 'fault' : source);
+      if (requests.size > 1000) requests.delete(requests.keys().next().value!);
+      return requests.get(request)!;
+    },
+    get(request: unknown) {
+      return typeof request === 'string' ? requests.get(request) : undefined;
+    },
+  };
+}
+
 /** Opt-in, local-only pilot measurements. Never store prompts, keys or user IDs. */
 export function createPilotRecorder(file?: string, source = 'fixture', pilot?: string) {
   if (pilot && !/^[a-zA-Z0-9_-]{1,64}$/.test(pilot)) throw new Error('Use a non-personal pilot label');

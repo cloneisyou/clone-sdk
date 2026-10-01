@@ -4,37 +4,37 @@
 
 During 0.x, breaking public contract changes increment the minor version; compatible fixes increment the patch. Once 1.0 is reached, use SemVer major/minor/patch rules. The public contract includes exported types and documented behavior such as Tab insertion, events, cancellation, and submission ownership. Never overwrite a published version or move its tag.
 
-## SDK 0.6.2
+## SDK 0.6.3
 
-Version 0.6.2 adds the packaged feedback tracker, explicit evaluations and outcomes, feedback revision and clearing. Content-free diagnostics and pilot validation from 0.5.0 remain available. Feedback memory requires the matching API deployment; see [feedback](feedback.md). Python client 0.2.0 is distributed separately as a wheel and source archive. Optional presentation and Clone mode from 0.4.0 remain available; instant suggestions and manual submission remain the defaults. The older 0.3.1 artifact does not contain these features. Keep the installed archive and lockfile pinned until the upgrade passes in your own composer. `npm run test:package` builds, checks and installs the actual archive into independent React 18 and 19 examples.
+Version 0.6.3 keeps pilot measurements tied to the original prediction source, including late observations after a fault changes. Version 0.6.2 added the packaged feedback tracker, explicit evaluations and outcomes, feedback revision and clearing. Content-free diagnostics and pilot validation from 0.5.0 remain available. Feedback memory requires the matching API deployment; see [feedback](feedback.md). Python client 0.2.0 is distributed separately as a wheel and source archive. Optional presentation and Clone mode from 0.4.0 remain available; instant suggestions and manual submission remain the defaults. The older 0.3.1 artifact does not contain these features. Keep the installed archive and lockfile pinned until the upgrade passes in your own composer. `npm run test:package` builds, checks and installs the actual archive into independent React 18 and 19 examples.
 
 ## Download and install
 
-The current release is [v0.6.2](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.2). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
+The current release is [v0.6.3](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.3). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
 
 When the repository is public, no GitHub credential is needed:
 
 ```sh
 mkdir -p vendor/clone-sdk
-release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.6.2
-curl --fail --location "$release_url/clone-ai-tab-completion-0.6.2.tgz" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.6.2.tgz
-curl --fail --location "$release_url/clone-ai-tab-completion-0.6.2.tgz.sha256" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.6.2.tgz.sha256
+release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.6.3
+curl --fail --location "$release_url/clone-ai-tab-completion-0.6.3.tgz" \
+  --output vendor/clone-sdk/clone-ai-tab-completion-0.6.3.tgz
+curl --fail --location "$release_url/clone-ai-tab-completion-0.6.3.tgz.sha256" \
+  --output vendor/clone-sdk/clone-ai-tab-completion-0.6.3.tgz.sha256
 ```
 
 If GitHub reports restricted access, use an account with repository read access:
 
 ```sh
-gh release download v0.6.2 --repo cloneisyou/clone-sdk \
-  --pattern 'clone-ai-tab-completion-0.6.2.tgz*' --dir vendor/clone-sdk
+gh release download v0.6.3 --repo cloneisyou/clone-sdk \
+  --pattern 'clone-ai-tab-completion-0.6.3.tgz*' --dir vendor/clone-sdk
 ```
 
 Then verify and install with your existing package manager:
 
 ```sh
-(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.6.2.tgz.sha256)
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.6.2.tgz
+(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.6.3.tgz.sha256)
+npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.6.3.tgz
 ```
 
 On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile. Do not put access tokens in package URLs or lockfiles.
