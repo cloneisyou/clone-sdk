@@ -2,5 +2,6 @@ export { CompletionController } from './controller.js';
 export { CloneModeController } from './clone-mode.js';
 export type { CloneModeInput, CloneModeState, CloneModeOptions } from './clone-mode.js';
 export { createPredictionTransport, ClonePredictionError } from './transport.js';
+export type { PredictionMetric } from './transport.js';
 export type { CompletionInput, CompletionState, CompletionOptions, AcceptedCompletion } from './controller.js';
 export type { PredictionInput, PredictionOutput, CompletionRequest, PredictionTransport, PredictionEvent } from './types.js';

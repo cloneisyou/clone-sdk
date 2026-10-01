@@ -4,37 +4,37 @@
 
 During 0.x, breaking public contract changes increment the minor version; compatible fixes increment the patch. Once 1.0 is reached, use SemVer major/minor/patch rules. The public contract includes exported types and documented behavior such as Tab insertion, events, cancellation, and submission ownership. Never overwrite a published version or move its tag.
 
-## SDK 0.4.0
+## SDK 0.5.0
 
-Version 0.4.0 adds optional presentation and Clone mode. Instant suggestions and manual submission remain the defaults. The older 0.3.1 artifact does not contain these features. Keep the installed archive and lockfile pinned until the upgrade passes in your own composer. `npm run test:package` builds, checks and installs the actual archive into independent React 18 and 19 examples.
+Version 0.5.0 adds content-free diagnostics and a pilot-validation harness. Python client 0.1.0 is distributed separately as a wheel and source archive. Optional presentation and Clone mode from 0.4.0 remain available; instant suggestions and manual submission remain the defaults. The older 0.3.1 artifact does not contain these features. Keep the installed archive and lockfile pinned until the upgrade passes in your own composer. `npm run test:package` builds, checks and installs the actual archive into independent React 18 and 19 examples.
 
 ## Download and install
 
-The current release is [v0.4.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.4.0). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
+The current release is [v0.5.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.5.0). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
 
 When the repository is public, no GitHub credential is needed:
 
 ```sh
 mkdir -p vendor/clone-sdk
-release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.4.0
-curl --fail --location "$release_url/clone-ai-tab-completion-0.4.0.tgz" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.4.0.tgz
-curl --fail --location "$release_url/clone-ai-tab-completion-0.4.0.tgz.sha256" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.4.0.tgz.sha256
+release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.5.0
+curl --fail --location "$release_url/clone-ai-tab-completion-0.5.0.tgz" \
+  --output vendor/clone-sdk/clone-ai-tab-completion-0.5.0.tgz
+curl --fail --location "$release_url/clone-ai-tab-completion-0.5.0.tgz.sha256" \
+  --output vendor/clone-sdk/clone-ai-tab-completion-0.5.0.tgz.sha256
 ```
 
 If GitHub reports restricted access, use an account with repository read access:
 
 ```sh
-gh release download v0.4.0 --repo cloneisyou/clone-sdk \
-  --pattern 'clone-ai-tab-completion-0.4.0.tgz*' --dir vendor/clone-sdk
+gh release download v0.5.0 --repo cloneisyou/clone-sdk \
+  --pattern 'clone-ai-tab-completion-0.5.0.tgz*' --dir vendor/clone-sdk
 ```
 
 Then verify and install with your existing package manager:
 
 ```sh
-(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.4.0.tgz.sha256)
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.4.0.tgz
+(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.5.0.tgz.sha256)
+npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.5.0.tgz
 ```
 
 On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile. Do not put access tokens in package URLs or lockfiles.
@@ -45,15 +45,19 @@ On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile
 2. Generate types, run unit/browser/packaged consumer tests, and check dependencies.
 3. Run `pnpm check:public` and review the full staged diff, author metadata, generated output, and tarball contents against the [public documentation boundary](../CONTRIBUTING.md#public-documentation-boundary). Secret scanning alone is insufficient. A visibility change also exposes earlier repository records; review all refs, pull requests, releases, Actions artifacts and logs before changing visibility. Never import private Git history into a new public repository.
 4. Commit the SDK files, wait for CI, and create a matching `v<package version>` tag at that verified commit.
-5. The release workflow repeats the checks and creates a GitHub prerelease with the installable `.tgz` and SHA-256 checksum. It downloads the uploaded archive using repository authentication, verifies its checksum, and tests installation. Verify the anonymous download separately after a visibility change.
+5. The release workflow repeats the checks and creates a GitHub prerelease with the installable `.tgz`, SHA-256 checksum, Python wheel and source distribution. It downloads the uploaded archive using repository authentication, verifies its checksum, and tests installation. Verify the anonymous download separately after a visibility change.
 
 `npm pack` starts from a clean `dist` build, checks the actual package file selection for disclosure hazards, and creates `release-manifest.json`, which records hashes of distributed files. The external tarball checksum covers the archive, including `package.json` and the manifest. Neither a hash nor the fixture tests prove suggestion quality.
 
-## npm publication
+## Registry publication
 
 Distribution uses versioned GitHub Releases. npm registry publication is disabled, and the npm workflow refuses to run while the repository is private. Do not describe `npm install @clone-ai/tab-completion` as available until a separate publication decision has been made and the package has been published and independently installed.
 
-To enable npm releases, an owner must first confirm ownership of the `@clone-ai` scope, bootstrap the package, and configure its GitHub trusted publisher for this repository and `npm-publish.yml`. Set repository variable `NPM_PUBLISH_ENABLED=true` only after that configuration. The manual workflow accepts an existing release tag, repeats validation, and uses OIDC instead of a stored npm token. See [npm's trusted publisher documentation](https://docs.npmjs.com/trusted-publishers/).
+To enable npm releases, an owner must first confirm ownership of the `@clone-ai` scope, bootstrap the package, and configure its GitHub trusted publisher for owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml` and environment `npm`. Set repository variable `NPM_PUBLISH_ENABLED=true` only after that configuration. The manual workflow accepts an existing release tag and registry, repeats validation, compares all installed release content with the tested package, and uses OIDC instead of a stored npm token. See [npm's trusted publisher documentation](https://docs.npmjs.com/trusted-publishers/).
+
+The Python distribution is `clone-sdk`. Before the first PyPI publication, configure a pending trusted publisher with owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml`, environment `pypi` and the account owner's verified email. For an existing project, configure its publisher on that project instead. Enable `PYPI_PUBLISH_ENABLED=true` only after configuration. The PyPI job requires wheel and source bytes to match the release and verifies a fresh anonymous installation after publishing. See [PyPI publisher setup](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
+
+Account creation, email verification, 2FA and publisher authority must be complete before dispatch. Do not put passwords, OTPs or registry tokens in source files or chat. Registry install commands are available only after the exact version is published and independently installed.
 
 ## Build this checkout
 

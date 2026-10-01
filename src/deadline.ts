@@ -7,7 +7,10 @@ export async function withDeadline<T>(run: (signal: AbortSignal) => Promise<T>, 
   let cancel!: () => void;
   const stopped = new Promise<never>((_, reject) => {
     cancel = () => { controller.abort(); reject(new ClonePredictionError('prediction_cancelled', 499)); };
-    timer = setTimeout(() => { controller.abort(); reject(new ClonePredictionError('prediction_timeout', 504)); }, timeoutMs);
+    timer = setTimeout(() => {
+      const error = new ClonePredictionError('prediction_timeout', 504);
+      controller.abort(error); reject(error);
+    }, timeoutMs);
     parent?.addEventListener('abort', cancel, { once: true });
     if (parent?.aborted) cancel();
   });

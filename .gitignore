@@ -15,3 +15,9 @@ release-manifest.json
 .gstack/
 output/
 coverage/
+python/.venv/
+python/dist/
+python/.pytest_cache/
+python/.ruff_cache/
+__pycache__/
+*.pyc

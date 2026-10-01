@@ -9,6 +9,40 @@ on:
 permissions:
   contents: read
 jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.11', '3.14']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install uv==0.12.4
+      - run: uv sync --locked --python '${{ matrix.python }}' --directory python
+      - run: uv run --directory python ruff check .
+      - run: uv run --directory python pytest
+      - run: uv build --directory python
+      - run: uv run twine check dist/*
+        working-directory: python
+      - name: Install built wheel in a clean consumer
+        run: |
+          python -m venv "$RUNNER_TEMP/python-consumer"
+          "$RUNNER_TEMP/python-consumer/bin/pip" install python/dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/python-consumer/bin/python" -c 'from clone_sdk import CloneClient, AsyncCloneClient; print("Python imports passed")'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: matrix.python == '3.11'
+        with:
+          name: python-package
+          path: python/dist/*
+          if-no-files-found: error
+          retention-days: 7
   sdk:
     runs-on: ubuntu-latest
     timeout-minutes: 15

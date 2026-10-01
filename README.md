@@ -2,13 +2,14 @@
 
 Add next-prompt prediction and Tab completion to your existing composer. Suggestions appear as ghost text. **Tab inserts; your application decides when to send.**
 
-**SDK 0.4.0:** instant display remains the default. Set `presentation="typewriter"` for a cancellable display animation after the complete JSON response arrives; the API does not stream. These options and Clone mode are absent from the 0.3.1 package. Keep ordinary typing and sending available when predictions are loading, fail, or never return. See the [rendering contract](docs/agent-integration.md#suggestion-rendering-contract) before building a custom editor adapter.
+**SDK 0.5.0:** instant display remains the default. Set `presentation="typewriter"` for a cancellable display animation after the complete JSON response arrives; the API does not stream. These options and Clone mode are absent from the 0.3.1 package. Keep ordinary typing and sending available when predictions are loading, fail, or never return. See the [rendering contract](docs/agent-integration.md#suggestion-rendering-contract) before building a custom editor adapter.
 
 Use your product's conversation, selected artifact and user preferences as context. Your end users do not need a Clone account. Connecting a user's Clone context is optional.
 
 - **Headless controller** for custom editors.
 - **React hook and textarea**, plus an optional assistant-ui adapter.
 - **Server client** for prediction, usage and optional account connection.
+- **Python server client**, with sync and async interfaces. See [Python installation and usage](https://github.com/cloneisyou/clone-sdk/blob/main/python/README.md).
 - **Optional Clone mode**, explicitly started by the end user, with preview, Stop and bounded automatic sends. See [Clone mode](docs/clone-mode.md).
 - **Direct HTTPS API** for any backend or custom interface. See [API integration](docs/api.md).
 - **MIT licensed SDK.** The hosted prediction API is a separate service that requires a server-side app key. See [service boundaries](docs/data-and-service.md) and [billing](docs/billing.md).
@@ -30,13 +31,13 @@ First complete [production app and card setup](https://clone.is/developer/apps?s
 
 Node **22.13+**, ESM. React integrations support **18 and 19**. The headless controller and server client do not require React.
 
-Download the package and checksum from [release v0.4.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.4.0), then verify and install. Existing integrations can keep their pinned version while validating an upgrade:
+Download the package and checksum from [release v0.5.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.5.0), then verify and install. Existing integrations can keep their pinned version while validating an upgrade:
 
 ```sh
 cd vendor/clone-sdk
-shasum -a 256 -c clone-ai-tab-completion-0.4.0.tgz.sha256
+shasum -a 256 -c clone-ai-tab-completion-0.5.0.tgz.sha256
 cd ../..
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.4.0.tgz
+npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.5.0.tgz
 ```
 
 Use your project's package manager and commit its lockfile. **The package is not on npm.** See [release downloads](docs/releases.md#download-and-install) for download commands. Hosted API access requires a separate app key.
@@ -89,6 +90,8 @@ pnpm dev
 ```
 
 Open [localhost:4317](http://127.0.0.1:4317). Type, accept with Tab, then send explicitly. Add `?assistant=1` to try assistant-ui. The default demo uses synthetic suggestions and sends nothing to Clone.
+
+For a connected proxy, outage testing and private measurements, follow [pilot validation](docs/pilot-validation.md). Synthetic checks, real model calls and customer acceptance are separate evidence.
 
 ## Choose an entry point
 

@@ -2,7 +2,7 @@
 
 ## Separate suggestions from delegation
 
-Normal Tab completion never sends. Clone mode is an optional SDK 0.4.0 API that the customer must choose to expose. It starts only after the end user selects Start. No restored toggle, component mount, double Tab or prediction response starts it implicitly.
+Normal Tab completion never sends. Clone mode is an optional SDK 0.5.0 API that the customer must choose to expose. It starts only after the end user selects Start. No restored toggle, component mount, double Tab or prediction response starts it implicitly.
 
 Default bounds are three sends and five minutes. The host can choose one to 100 sends and a time bound up to one hour. The full next prompt is visible for at least one second (two seconds by default) before it is submitted. Always render the candidate, remaining turns, state and a visible Stop control.
 
