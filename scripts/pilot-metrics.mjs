@@ -1,5 +1,6 @@
 import { appendFile, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export function summarize(records) {
   const result = { sources: {}, onboarding: [], support_minutes: null, support_records: 0 };
@@ -58,7 +59,7 @@ export function summarize(records) {
   return result;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === new URL(import.meta.url).pathname) {
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [command, file, pilot, value] = process.argv.slice(2);
   if (!file) throw new Error('Usage: pilot-metrics.mjs report FILE | start/verified/support FILE PILOT [MINUTES]');
   if (command === 'report') {

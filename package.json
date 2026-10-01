@@ -11,6 +11,7 @@
     "openapi.json",
     "release-manifest.json",
     "scripts/create-example.mjs",
+    "scripts/pilot-metrics.mjs",
     "playwright.config.ts",
     "tests/browser",
     "LICENSE",

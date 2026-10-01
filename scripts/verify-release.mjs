@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir, lstat } from 'node:fs/promises';
 import { resolve, relative } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 // Rebuilt archives have a different generatedAt. Compare and verify all
 // installed bytes plus package metadata, excluding only that timestamp.
@@ -38,7 +39,7 @@ export async function verifyRelease(tested, released) {
   }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === new URL(import.meta.url).pathname) {
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [tested, released] = process.argv.slice(2);
   if (!tested || !released) throw new Error('Usage: verify-release.mjs tested/package released/package');
   await verifyRelease(tested, released);
