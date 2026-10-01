@@ -26,6 +26,14 @@ describe('HTTP response boundary', () => {
     await expect(transport({} as CompletionRequest, { signal: abort.signal })).rejects.toBe(error);
     expect(metrics).toHaveBeenCalledWith({ durationMs: expect.any(Number), status: 0, outcome: 'cancelled', code: 'cancelled' });
   });
+  it('isolates asynchronous observer failures without awaiting diagnostics', async () => {
+    const transport = createPredictionTransport('/api/predict', {
+      fetch: vi.fn().mockResolvedValue(Response.json({ status: 'suggested', completion: 'example' })),
+      onMetric: async () => { throw new Error('diagnostics unavailable'); },
+    });
+    await expect(transport({} as CompletionRequest, { signal: new AbortController().signal }))
+      .resolves.toMatchObject({ status: 'suggested' });
+  });
   it('counts deadline expiry as a failure rather than user cancellation', async () => {
     const metrics = vi.fn();
     const abort = new AbortController();

@@ -15,7 +15,7 @@ export interface PredictionMetric {
 export function createPredictionTransport(endpoint: string, options: {
   fetch?: typeof fetch;
   headers?: () => Record<string, string>;
-  onMetric?: (metric: PredictionMetric) => void;
+  onMetric?: (metric: PredictionMetric) => void | Promise<void>;
 } = {}): PredictionTransport {
   const request = options.fetch ?? globalThis.fetch;
   return async (input, { signal }) => {
@@ -42,7 +42,10 @@ export function createPredictionTransport(endpoint: string, options: {
         : outcome === 'cancelled' ? 'cancelled' : 'network_error';
       throw error;
     } finally {
-      try { options.onMetric?.({ durationMs: Math.max(0, performance.now() - started), status, outcome, ...(code ? { code } : {}) }); }
+      try {
+        void Promise.resolve(options.onMetric?.({ durationMs: Math.max(0, performance.now() - started),
+          status, outcome, ...(code ? { code } : {}) })).catch(() => {});
+      }
       catch { /* Diagnostics never interfere with prediction, input or send. */ }
     }
   };
