@@ -3,6 +3,30 @@ import { createEventTransport, FeedbackTracker } from '../src/feedback.js';
 import type { FeedbackEvent } from '../src/feedback.js';
 
 describe('feedback attribution and collection', () => {
+  it.each([
+    { value: 'x'.repeat(4001), collected: false },
+    { value: '😀'.repeat(4000), collected: true },
+  ])('records edited submission when optional text collection is $collected', async ({ value, collected }) => {
+    const events: FeedbackEvent[] = [];
+    const receipts = vi.fn();
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (_url, options) => {
+      const event = JSON.parse(String(options?.body)) as FeedbackEvent;
+      events.push(event);
+      return event.final_text && Array.from(event.final_text).length > 4000
+        ? Response.json({ detail: { code: 'validation_error' } }, { status: 422 })
+        : Response.json({ status: 'recorded' });
+    });
+    const tracker = new FeedbackTracker(createEventTransport('/events', { fetch: fetcher }), {
+      collectSubmittedText: true, onDelivery: receipts,
+    });
+    tracker.observe({ request_id: 'p1', kind: 'accepted' }, 'draft');
+    tracker.input('draft suggestion'); tracker.input(value); tracker.submitted(value);
+    await vi.waitFor(() => expect(receipts).toHaveBeenCalledTimes(3));
+    const submitted = events.find(event => event.kind === 'submitted');
+    expect(submitted).toMatchObject({ submission_origin: 'edited_prediction' });
+    expect(submitted?.final_text).toBe(collected ? value : undefined);
+    expect(receipts.mock.calls.every(([receipt]) => receipt.status === 'recorded')).toBe(true);
+  });
   it('collects edited sent text only after explicit opt-in and preserves its origin', () => {
     const events: FeedbackEvent[] = [];
     const tracker = new FeedbackTracker(event => events.push(event), { collectSubmittedText: true });

@@ -1,3 +1,8 @@
+# 0.6.2
+
+- Keep successful submission events when an opted-in edited text exceeds the API content limit; omit the optional text instead of losing the event.
+- Clarify feedback integration: observe SDK insertions, human edits and Undo through the same value callback; keep the tracker stable between renders. The generated example already uses this wiring.
+
 # 0.6.1
 
 - Fix the example host proxy for an empty feedback-clear POST. Add an HTTP regression check for clearing and origin isolation.

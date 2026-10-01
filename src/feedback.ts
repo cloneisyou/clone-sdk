@@ -92,7 +92,8 @@ export class FeedbackTracker {
     if (!accepted || accepted.inserted === null || !value.trim() || value === accepted.before) return 'human';
     const origin = value === accepted.inserted ? 'accepted_prediction' : 'edited_prediction';
     this.emit(accepted.requestId, 'submitted', { submission_origin: origin,
-      ...(origin === 'edited_prediction' && this.options.collectSubmittedText ? { final_text: value, content_opt_in: true } : {}) });
+      ...(origin === 'edited_prediction' && this.options.collectSubmittedText && Array.from(value).length <= 4000
+        ? { final_text: value, content_opt_in: true } : {}) });
     return origin;
   }
   /** An explicit quality decision, separate from Escape, blur and expiry. */
