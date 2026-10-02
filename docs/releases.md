@@ -10,7 +10,13 @@ Version 0.6.3 keeps pilot measurements tied to the original prediction source, i
 
 ## Download and install
 
-The current release is [v0.6.3](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.3). Download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
+The current release is [v0.6.3](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.3). Install its public npm package with your existing package manager:
+
+```sh
+npm install --save-exact @clone-ai/tab-completion@0.6.3
+```
+
+Commit the lockfile. To install a checksum-verified GitHub archive instead, download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
 
 When the repository is public, no GitHub credential is needed:
 
@@ -51,9 +57,9 @@ On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile
 
 ## Registry publication
 
-Distribution uses versioned GitHub Releases. npm registry publication is disabled, and the npm workflow refuses to run while the repository is private. Do not describe `npm install @clone-ai/tab-completion` as available until a separate publication decision has been made and the package has been published and independently installed.
+`@clone-ai/tab-completion@0.6.3` is public on npm and has passed an independent anonymous installation. Its tarball matches the verified GitHub release. The first publication used an authenticated local CLI; it does not establish GitHub OIDC publication or CI provenance. GitHub release archives remain available. The registry workflow refuses to run while the repository is private.
 
-To enable npm releases, an owner must first confirm ownership of the `@clone-ai` scope, bootstrap the package, and configure its GitHub trusted publisher for owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml` and environment `npm`. The publisher must allow direct publication with `npm publish`; stage-only permission does not authorize the current workflow. Set repository variable `NPM_PUBLISH_ENABLED=true` only after that configuration. The manual workflow accepts an existing release tag and registry, repeats validation, compares all installed release content with the tested package, and uses OIDC instead of a stored npm token. See [npm's trusted publisher documentation](https://docs.npmjs.com/trusted-publishers/).
+For future npm releases, an owner must configure the package's GitHub trusted publisher for owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml` and environment `npm`. The publisher must allow direct publication with `npm publish`; stage-only permission does not authorize the current workflow. Set repository variable `NPM_PUBLISH_ENABLED=true` only after that configuration. The manual workflow accepts an existing release tag and registry, repeats validation, compares all installed release content with the tested package, and uses OIDC instead of a stored npm token. See [npm's trusted publisher documentation](https://docs.npmjs.com/trusted-publishers/).
 
 The Python distribution is `clone-sdk`. Before the first PyPI publication, configure a pending trusted publisher with owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml`, environment `pypi` and the account owner's verified email. For an existing project, configure its publisher on that project instead. Enable `PYPI_PUBLISH_ENABLED=true` only after configuration. The PyPI job requires wheel and source bytes to match the release and verifies a fresh anonymous installation after publishing. See [PyPI publisher setup](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
 
