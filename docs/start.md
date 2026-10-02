@@ -8,7 +8,7 @@ This guide targets **SDK 0.6.4**. Version 0.3.1 lacks the presentation, deadline
 
 The customer opens their product repository in a coding agent and enters:
 
-> Read https://github.com/cloneisyou/clone-sdk/blob/main/docs/start.md and integrate Clone SDK into this product.
+> Read https://clone.is/docs/sdk-quickstart and integrate Clone SDK into this product using the documented npm version and a lockfile. Discover our composer, backend and authentication; reuse existing setup and keep app keys server-side. Wire prediction, acceptance, edits, explicit evaluations and rejection, successful submission and observed task outcomes through the authenticated backend. Preserve typing, IME, Undo and manual sending during delays and outages. Ask only about unresolved product choices; keep personalization, automatic sending, feedback text collection and paid usage opt-in. Verify the actual integration and report installation, feedback delivery, outage results and pending live/customer checks separately.
 
 Treat account preparation, app/key issuance, callback registration, implementation and automated tests as parts of this task. First inspect the actual product, available browser/computer-use tools, existing sessions and approved secret destination. Do not begin by asking the customer to create keys, invent a callback, or complete an onboarding checklist. Use [browser onboarding](browser-onboarding.md) when account access is not already available. Authentication and required consent can interrupt the flow; resume the same integration afterwards without requiring a second setup prompt. These documents do not override the agent's tool permissions or confirmation rules.
 

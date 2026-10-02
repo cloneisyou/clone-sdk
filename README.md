@@ -19,7 +19,7 @@ Use your product's conversation, selected artifact and user preferences as conte
 Open your product repository in your coding agent and paste:
 
 ```text
-Read https://github.com/cloneisyou/clone-sdk/blob/main/docs/start.md and integrate Clone SDK into this product.
+Read https://clone.is/docs/sdk-quickstart and integrate Clone SDK into this product using the documented npm version and a lockfile. Discover our composer, backend and authentication; reuse existing setup and keep app keys server-side. Wire prediction, acceptance, edits, explicit evaluations and rejection, successful submission and observed task outcomes through the authenticated backend. Preserve typing, IME, Undo and manual sending during delays and outages. Ask only about unresolved product choices; keep personalization, automatic sending, feedback text collection and paid usage opt-in. Verify the actual integration and report installation, feedback delivery, outage results and pending live/customer checks separately.
 ```
 
 Your agent will handle setup, integration and verification. Production onboarding includes company account, app registration, pricing and card setup before SDK installation. You personally complete login, billing consent and card entry; no fee is charged at card registration. Choose **Try the free sandbox** for a separate card-free evaluation.
