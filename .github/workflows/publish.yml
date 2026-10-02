@@ -94,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$NPM_TAG" == next || "$NPM_TAG" == latest ]]
-          npm publish release/*.tgz --access public --tag "$NPM_TAG" --provenance
+          npm publish ./release/*.tgz --access public --tag "$NPM_TAG" --provenance
       - name: Verify anonymous registry installation
         run: |
           version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')
