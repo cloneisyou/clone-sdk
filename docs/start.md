@@ -56,11 +56,15 @@ For the explicitly chosen sandbox path, save the key and continue without a card
 
 ## 2. Obtain and install the package
 
-Follow [download and install](releases.md#download-and-install) to obtain the versioned archive and its checksum from the official release. Public repositories support anonymous downloads; if access is still restricted, use the team's authorized GitHub CLI or a verified archive supplied by Clone. An anonymous 404 is not proof that the repository is missing. Never ask for a broad personal token in chat.
+Install the public npm package using the product's existing package manager:
 
-Verify the checksum before installation. Use the product's existing package manager and commit the appropriate lockfile. Node 22.13+, ESM and React 18/19 are supported. Do not upgrade the entire host application without establishing compatibility. This package is not on the npm registry and does not require a Git submodule.
+```sh
+npm install --save-exact @clone-ai/tab-completion@0.6.3
+```
 
-See [release access and CI](releases.md#release-access-and-ci) for repeatable installs. Consume the built package instead of copying SDK implementation files into the product.
+Commit the appropriate lockfile. Node 22.13+, ESM and React 18/19 are supported. Do not upgrade the entire host application without establishing compatibility. A Git submodule is not required.
+
+For a checksum-verified GitHub archive, follow [download and install](releases.md#download-and-install). Consume the built package instead of copying SDK implementation files into the product. See [release access and CI](releases.md#release-access-and-ci) for repeatable installs.
 
 ## 3. Integrate with the product
 

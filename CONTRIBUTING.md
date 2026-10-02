@@ -22,7 +22,7 @@ Use synthetic examples. Do not submit credentials, private prompts, user convers
 
 Contributions are provided under this repository's MIT license. Declare any imported third-party code and preserve its license notices. Runtime dependencies retain their own licenses; no third-party runtime source is vendored here.
 
-This is the canonical SDK repository. Consume built, versioned package archives (or npm releases when available) in downstream applications. For local changes, build and pack this repository, then install the tarball in a consumer; do not maintain a second SDK source copy or add a Git submodule just to use the package.
+This is the canonical SDK repository. Consume versioned npm packages or verified GitHub release archives in downstream applications. For local changes, build and pack this repository, then install the tarball in a consumer; do not maintain a second SDK source copy or add a Git submodule just to use the package.
 
 ## Repository layout
 

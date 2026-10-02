@@ -31,16 +31,13 @@ First complete [production app and card setup](https://clone.is/developer/apps?s
 
 Node **22.13+**, ESM. React integrations support **18 and 19**. The headless controller and server client do not require React.
 
-Download the package and checksum from [release v0.6.3](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.3), then verify and install. Existing integrations can keep their pinned version while validating an upgrade:
+Install the public npm package. Existing integrations can keep their pinned version while validating an upgrade:
 
 ```sh
-cd vendor/clone-sdk
-shasum -a 256 -c clone-ai-tab-completion-0.6.3.tgz.sha256
-cd ../..
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.6.3.tgz
+npm install --save-exact @clone-ai/tab-completion@0.6.3
 ```
 
-Use your project's package manager and commit its lockfile. **The package is not on npm.** See [release downloads](docs/releases.md#download-and-install) for download commands. Hosted API access requires a separate app key.
+Use your project's package manager and commit its lockfile. Verified [GitHub release archives](docs/releases.md#download-and-install) remain available. Hosted API access requires a separate app key.
 
 ```tsx
 'use client';

@@ -6,7 +6,7 @@ Begin with [start.md](start.md), which covers agent-led self-service app registr
 
 ## Prerequisites
 
-- The versioned SDK release archive, Node 22.13+, React 18 or 19. Follow the [release download instructions](releases.md#download-and-install). An authorized GitHub account is needed only while repository access is restricted. The package is not on npm.
+- The public `@clone-ai/tab-completion@0.6.3` npm package, Node 22.13+, React 18 or 19. Follow the [installation instructions](releases.md#download-and-install). Checksum-verified GitHub archives are also available.
 - A Clone app key (`clnp_...`) for the chosen production or sandbox app and its API base URL. Use an isolated sandbox app for synthetic integration tests. Only optional personalization needs an exact registered HTTPS callback (HTTP loopback is local/test only). The agent obtains these through self-service onboarding; the customer need not prepare them in advance.
 - An existing authenticated customer session and server-side session storage.
 - Only for optional personalization: a Clone test account with selected profile/Goal context already synced. Basic verification needs no Clone test account. Local-only unsynced content is unavailable.
