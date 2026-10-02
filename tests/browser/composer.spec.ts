@@ -138,8 +138,11 @@ for (const assistant of [false, true]) {
       await page.getByRole('combobox', { name: 'Context' }).focus();
       await expect.poll(async () => {
         const events = JSON.parse(await page.getByTestId('observation-events').textContent() ?? '[]');
-        return events.filter((event: { delivery: string }) => event.delivery === 'failed').length;
-      }).toBe(3);
+        const submitted = events.find((event: { kind: string }) => event.kind === 'submitted');
+        return events.filter((event: { request_id: string; delivery: string }) =>
+          event.request_id === submitted?.request_id && event.delivery === 'failed')
+          .map((event: { kind: string }) => event.kind);
+      }).toEqual(['presented', 'accepted', 'submitted']);
     });
     test('next prediction receives submitted text, origin and a new conversation revision', async ({ page }) => {
       const requests: CompletionRequest[] = [];
