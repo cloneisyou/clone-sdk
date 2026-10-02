@@ -2,7 +2,7 @@
 
 Add next-prompt prediction and Tab completion to your existing composer. Suggestions appear as ghost text. **Tab inserts; your application decides when to send.**
 
-**SDK 0.6.4:** instant display remains the default. Set `presentation="typewriter"` for a cancellable display animation after the complete JSON response arrives; the API does not stream. These options and Clone mode are absent from the 0.3.1 package. Keep ordinary typing and sending available when predictions are loading, fail, or never return. See the [rendering contract](docs/agent-integration.md#suggestion-rendering-contract) before building a custom editor adapter.
+**SDK 0.7.0:** instant display remains the default. Set `presentation="typewriter"` for a cancellable display animation after the complete JSON response arrives; the API does not stream. These options and Clone mode are absent from the 0.3.1 package. Keep ordinary typing and sending available when predictions are loading, fail, or never return. See the [rendering contract](docs/agent-integration.md#suggestion-rendering-contract) before building a custom editor adapter.
 
 Use your product's conversation, selected artifact and user preferences as context. Your end users do not need a Clone account. Connecting a user's Clone context is optional.
 
@@ -34,7 +34,7 @@ Node **22.13+**, ESM. React integrations support **18 and 19**. The headless con
 Install the public npm package. Existing integrations can keep their pinned version while validating an upgrade:
 
 ```sh
-npm install --save-exact @clone-ai/tab-completion@0.6.4
+npm install --save-exact @clone-ai/prompt-prediction@0.7.0
 ```
 
 Use your project's package manager and commit its lockfile. Verified [GitHub release archives](docs/releases.md#download-and-install) remain available. Hosted API access requires a separate app key.
@@ -42,8 +42,8 @@ Use your project's package manager and commit its lockfile. Verified [GitHub rel
 ```tsx
 'use client';
 import { useState } from 'react';
-import { createPredictionTransport } from '@clone-ai/tab-completion';
-import { TabCompletionInput } from '@clone-ai/tab-completion/react';
+import { createPredictionTransport } from '@clone-ai/prompt-prediction';
+import { TabCompletionInput } from '@clone-ai/prompt-prediction/react';
 
 const transport = createPredictionTransport('/api/clone/predict');
 
@@ -70,7 +70,7 @@ export function Composer({ threadId, contextRevision }: {
 }
 ```
 
-Implement `/api/clone/predict` in your authenticated backend using `CloneClient` from `@clone-ai/tab-completion/server`. Derive the user ID from the server session. Keep the app key on the server, never in browser code or `VITE_*` / `NEXT_PUBLIC_*` variables. Pass your real conversation and advance `context_revision` when it changes.
+Implement `/api/clone/predict` in your authenticated backend using `CloneClient` from `@clone-ai/prompt-prediction/server`. Derive the user ID from the server session. Keep the app key on the server, never in browser code or `VITE_*` / `NEXT_PUBLIC_*` variables. Pass your real conversation and advance `context_revision` when it changes.
 
 For complete setup and verification, follow the [integration guide](docs/start.md).
 
@@ -94,10 +94,10 @@ For a connected proxy, outage testing and private measurements, follow [pilot va
 
 | Import | Use it for |
 | --- | --- |
-| `@clone-ai/tab-completion` | Controller, browser transport, errors and public types |
-| `@clone-ai/tab-completion/react` | `useTabCompletion` or `TabCompletionInput` |
-| `@clone-ai/tab-completion/assistant-ui` | `CloneComposerInput` inside an existing assistant-ui composer |
-| `@clone-ai/tab-completion/server` | `CloneClient` and optional PKCE connection flow |
+| `@clone-ai/prompt-prediction` | Controller, browser transport, errors and public types |
+| `@clone-ai/prompt-prediction/react` | `useTabCompletion` or `TabCompletionInput` |
+| `@clone-ai/prompt-prediction/assistant-ui` | `CloneComposerInput` inside an existing assistant-ui composer |
+| `@clone-ai/prompt-prediction/server` | `CloneClient` and optional PKCE connection flow |
 
 The React input uses a native textarea. Rich-text editors need an insertion and Undo adapter around the controller. The assistant-ui adapter targets `@assistant-ui/react@0.15.21` and uses its `unstable_useComposerInput` hook; verify compatibility before upgrading it.
 
@@ -118,4 +118,4 @@ See [Contributing](CONTRIBUTING.md) for the repository layout and validation com
 
 ## Feedback loop
 
-SDK 0.6.4 can return explicit rejection, evaluations, edited successful submissions and host-observed outcomes to the API. Wire the packaged tracker to your host send and authenticated proxy. Text collection is off by default. See [feedback integration](docs/feedback.md) for scoped memory, delivery, expiry and clearing. These features require the API feedback deployment; event collection alone is not model learning.
+SDK 0.7.0 can return explicit rejection, evaluations, edited successful submissions and host-observed outcomes to the API. Wire the packaged tracker to your host send and authenticated proxy. Text collection is off by default. See [feedback integration](docs/feedback.md) for scoped memory, delivery, expiry and clearing. These features require the API feedback deployment; event collection alone is not model learning.

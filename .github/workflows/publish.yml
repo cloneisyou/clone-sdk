@@ -105,7 +105,7 @@ jobs:
         run: |
           set -euo pipefail
           version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')
-          package_spec="@clone-ai/tab-completion@$version"
+          package_spec="@clone-ai/prompt-prediction@$version"
           unset NPM_TOKEN NODE_AUTH_TOKEN
           export NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/anonymous-user.npmrc"
           export NPM_CONFIG_GLOBALCONFIG="$RUNNER_TEMP/anonymous-global.npmrc"
@@ -121,10 +121,10 @@ jobs:
           consumer="$RUNNER_TEMP/npm-consumer"
           npm install --prefix "$consumer" --ignore-scripts --prefer-online "$package_spec"
           cd "$consumer"
-          node --input-type=module -e 'await import("@clone-ai/tab-completion"); await import("@clone-ai/tab-completion/server")'
+          node --input-type=module -e 'await import("@clone-ai/prompt-prediction"); await import("@clone-ai/prompt-prediction/server")'
           npm audit signatures
           registry_tarball=$(npm pack "$package_spec" --pack-destination "$RUNNER_TEMP" --json | node -e 'let s=""; process.stdin.on("data",c=>s+=c).on("end",()=>console.log(JSON.parse(s)[0].filename))')
-          cmp "$RUNNER_TEMP/$registry_tarball" "$GITHUB_WORKSPACE/release/clone-ai-tab-completion-$version.tgz"
+          cmp "$RUNNER_TEMP/$registry_tarball" "$GITHUB_WORKSPACE/release/clone-ai-prompt-prediction-$version.tgz"
   pypi:
     if: inputs.registry == 'pypi'
     needs: [release_check, validate]

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import type { CompletionRequest } from '@clone-ai/tab-completion';
+import type { CompletionRequest } from '@clone-ai/prompt-prediction';
 
 for (const assistant of [false, true]) {
   test.describe(assistant ? 'assistant-ui' : 'React textarea', () => {

@@ -5,7 +5,7 @@ SDK 0.6.2 adds `FeedbackTracker`, bounded event delivery, explicit rejection/eva
 ## Host integration
 
 ```ts
-import { FeedbackTracker, createEventTransport } from '@clone-ai/tab-completion';
+import { FeedbackTracker, createEventTransport } from '@clone-ai/prompt-prediction';
 
 const feedback = new FeedbackTracker(createEventTransport('/api/clone/events'), {
   collectSubmittedText: false, // default: no submitted text collection

@@ -12,7 +12,7 @@ function run(command, args, cwd = root) {
   execFileSync(command, args, { cwd, stdio: 'inherit', env: process.env });
 }
 run('npm', ['pack', '--pack-destination', artifacts]);
-const filename = `clone-ai-tab-completion-${pkg.version}.tgz`;
+const filename = `clone-ai-prompt-prediction-${pkg.version}.tgz`;
 const tarball = resolve(artifacts, filename);
 const checksum = createHash('sha256').update(await readFile(tarball)).digest('hex');
 await writeFile(tarball + '.sha256', `${checksum}  ${filename}\n`);
