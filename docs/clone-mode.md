@@ -9,7 +9,7 @@ Default bounds are three sends and five minutes. The host can choose one to 100 
 ## Headless integration
 
 ```ts
-import { CloneModeController } from '@clone-ai/tab-completion';
+import { CloneModeController } from '@clone-ai/prompt-prediction';
 const mode = new CloneModeController({
   transport,
   onSubmit: async (text, { requestId, origin, signal }) => {

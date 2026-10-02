@@ -11,10 +11,10 @@ const files = ['scripts/pilot-metrics.mjs', 'examples/react/demo.tsx', 'examples
 for (const file of files) {
   let text = await readFile(resolve(root, file), 'utf8');
   for (const [from, to] of Object.entries({
-    '../../src/react.js': '@clone-ai/tab-completion/react', '../../src/assistant-ui.js': '@clone-ai/tab-completion/assistant-ui',
-    '../../src/transport.js': '@clone-ai/tab-completion', '../../src/types.js': '@clone-ai/tab-completion',
-    '../../src/feedback.js': '@clone-ai/tab-completion',
-    '../../src/server.js': '@clone-ai/tab-completion/server',
+    '../../src/react.js': '@clone-ai/prompt-prediction/react', '../../src/assistant-ui.js': '@clone-ai/prompt-prediction/assistant-ui',
+    '../../src/transport.js': '@clone-ai/prompt-prediction', '../../src/types.js': '@clone-ai/prompt-prediction',
+    '../../src/feedback.js': '@clone-ai/prompt-prediction',
+    '../../src/server.js': '@clone-ai/prompt-prediction/server',
   })) text = text.replaceAll(from, to);
   await mkdir(dirname(resolve(target, file)), { recursive: true });
   await writeFile(resolve(target, file), text);
@@ -25,7 +25,7 @@ await writeFile(resolve(target, 'tsconfig.json'), JSON.stringify({ compilerOptio
 }, include: ['examples'] }, null, 2));
 await writeFile(resolve(target, 'package.json'), JSON.stringify({ name: 'clone-tab-integration-example', private: true, type: 'module',
   scripts: { dev: 'vite --config examples/react/vite.config.ts', build: 'tsc && vite build --config examples/react/vite.config.ts', test: 'playwright test' },
-  dependencies: { '@clone-ai/tab-completion': 'file:' + resolve(tarball), '@assistant-ui/react': '0.15.21', react: '19.2.4', 'react-dom': '19.2.4' },
+  dependencies: { '@clone-ai/prompt-prediction': 'file:' + resolve(tarball), '@assistant-ui/react': '0.15.21', react: '19.2.4', 'react-dom': '19.2.4' },
   devDependencies: { vite: '8.0.16', typescript: '5.9.3', '@playwright/test': '1.60.0', '@types/node': '24.12.2', '@types/react': '19.2.14', '@types/react-dom': '19.2.3' },
 }, null, 2));
 console.log('Created independent example at', target);

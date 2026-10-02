@@ -1,3 +1,7 @@
+# 0.7.0
+
+- Publish the JavaScript SDK as `@clone-ai/prompt-prediction`. Update imports, generated integration examples, archive names, npm verification and installation guides. Runtime exports and prediction behavior remain unchanged.
+
 # 0.6.4
 
 - Include public npm installation instructions in the distributed README and integration guides. Keep exact package versions and checksum-verified archive alternatives aligned, and point billing guidance to the API pricing page.

@@ -48,4 +48,4 @@ jobs:
           (cd "$download_dir" && sha256sum --check ./*.sha256)
           npm install --prefix "$consumer_dir" --ignore-scripts "$download_dir"/*.tgz
           cd "$consumer_dir"
-          node --input-type=module -e 'await import("@clone-ai/tab-completion"); await import("@clone-ai/tab-completion/server")'
+          node --input-type=module -e 'await import("@clone-ai/prompt-prediction"); await import("@clone-ai/prompt-prediction/server")'

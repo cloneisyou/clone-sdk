@@ -4,16 +4,16 @@
 
 During 0.x, breaking public contract changes increment the minor version; compatible fixes increment the patch. Once 1.0 is reached, use SemVer major/minor/patch rules. The public contract includes exported types and documented behavior such as Tab insertion, events, cancellation, and submission ownership. Never overwrite a published version or move its tag.
 
-## SDK 0.6.4
+## SDK 0.7.0
 
-Version 0.6.4 updates the packaged npm installation guides. Version 0.6.3 keeps pilot measurements tied to the original prediction source, including late observations after a fault changes. Version 0.6.2 added the packaged feedback tracker, explicit evaluations and outcomes, feedback revision and clearing. Content-free diagnostics and pilot validation from 0.5.0 remain available. Feedback memory requires the matching API deployment; see [feedback](feedback.md). Python client 0.2.0 is distributed separately as a wheel and source archive. Optional presentation and Clone mode from 0.4.0 remain available; instant suggestions and manual submission remain the defaults. The older 0.3.1 artifact does not contain these features. Keep the installed archive and lockfile pinned until the upgrade passes in your own composer. `npm run test:package` builds, checks and installs the actual archive into independent React 18 and 19 examples.
+Version 0.7.0 publishes the JavaScript SDK as `@clone-ai/prompt-prediction` and updates its install and import paths. Runtime exports and prediction behavior are unchanged. Version 0.6.4 updated the packaged npm installation guides. Version 0.6.3 keeps pilot measurements tied to the original prediction source, including late observations after a fault changes. Version 0.6.2 added the packaged feedback tracker, explicit evaluations and outcomes, feedback revision and clearing. Content-free diagnostics and pilot validation from 0.5.0 remain available. Feedback memory requires the matching API deployment; see [feedback](feedback.md). Python client 0.2.0 is distributed separately as a wheel and source archive. Optional presentation and Clone mode from 0.4.0 remain available; instant suggestions and manual submission remain the defaults. The older 0.3.1 artifact does not contain these features. Keep the installed archive and lockfile pinned until the upgrade passes in your own composer. `npm run test:package` builds, checks and installs the actual archive into independent React 18 and 19 examples.
 
 ## Download and install
 
-The current release is [v0.6.4](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.4). Install its public npm package with your existing package manager:
+The current release is [v0.7.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.7.0). Install its public npm package with your existing package manager:
 
 ```sh
-npm install --save-exact @clone-ai/tab-completion@0.6.4
+npm install --save-exact @clone-ai/prompt-prediction@0.7.0
 ```
 
 Commit the lockfile. To install a checksum-verified GitHub archive instead, download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
@@ -22,25 +22,25 @@ When the repository is public, no GitHub credential is needed:
 
 ```sh
 mkdir -p vendor/clone-sdk
-release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.6.4
-curl --fail --location "$release_url/clone-ai-tab-completion-0.6.4.tgz" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.6.4.tgz
-curl --fail --location "$release_url/clone-ai-tab-completion-0.6.4.tgz.sha256" \
-  --output vendor/clone-sdk/clone-ai-tab-completion-0.6.4.tgz.sha256
+release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.7.0
+curl --fail --location "$release_url/clone-ai-prompt-prediction-0.7.0.tgz" \
+  --output vendor/clone-sdk/clone-ai-prompt-prediction-0.7.0.tgz
+curl --fail --location "$release_url/clone-ai-prompt-prediction-0.7.0.tgz.sha256" \
+  --output vendor/clone-sdk/clone-ai-prompt-prediction-0.7.0.tgz.sha256
 ```
 
 If GitHub reports restricted access, use an account with repository read access:
 
 ```sh
-gh release download v0.6.4 --repo cloneisyou/clone-sdk \
-  --pattern 'clone-ai-tab-completion-0.6.4.tgz*' --dir vendor/clone-sdk
+gh release download v0.7.0 --repo cloneisyou/clone-sdk \
+  --pattern 'clone-ai-prompt-prediction-0.7.0.tgz*' --dir vendor/clone-sdk
 ```
 
 Then verify and install with your existing package manager:
 
 ```sh
-(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-tab-completion-0.6.4.tgz.sha256)
-npm install ./vendor/clone-sdk/clone-ai-tab-completion-0.6.4.tgz
+(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-prompt-prediction-0.7.0.tgz.sha256)
+npm install ./vendor/clone-sdk/clone-ai-prompt-prediction-0.7.0.tgz
 ```
 
 On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile. Do not put access tokens in package URLs or lockfiles.
@@ -59,7 +59,7 @@ On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile
 
 The first public npm release, `@clone-ai/tab-completion@0.6.3`, passed an independent anonymous installation and matched its verified GitHub release. It used an authenticated local CLI and has no CI provenance. GitHub release archives remain available. The registry workflow refuses to run while the repository is private.
 
-The npm trusted publisher is configured for owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml` and environment `npm`, and `NPM_PUBLISH_ENABLED=true`. It allows direct `npm publish`. Distribution-tag management is not granted. Choose `next` (the default) for a preview or `latest` for a stable package when dispatching the workflow; the selected tag is assigned by publication itself. The manual workflow accepts an existing release tag and registry, repeats validation, compares all installed release content with the tested package, and uses OIDC instead of a stored npm token. See [npm's trusted publisher documentation](https://docs.npmjs.com/trusted-publishers/).
+Starting with 0.7.0, npm releases use `@clone-ai/prompt-prediction`. Publication requires a package-level trusted publisher for owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml` and environment `npm`, and `NPM_PUBLISH_ENABLED=true`. It allows direct `npm publish`. Distribution-tag management is not granted. Choose `next` (the default) for a preview or `latest` for a stable package when dispatching the workflow; the selected tag is assigned by publication itself. The manual workflow accepts an existing release tag and registry, repeats validation, compares all installed release content with the tested package, and uses OIDC instead of a stored npm token. See [npm's trusted publisher documentation](https://docs.npmjs.com/trusted-publishers/).
 
 The Python distribution is `clone-sdk`. Before the first PyPI publication, configure a pending trusted publisher with owner `cloneisyou`, repository `clone-sdk`, workflow `publish.yml`, environment `pypi` and the account owner's verified email. For an existing project, configure its publisher on that project instead. Enable `PYPI_PUBLISH_ENABLED=true` only after configuration. The PyPI job requires wheel and source bytes to match the release and verifies a fresh anonymous installation after publishing. See [PyPI publisher setup](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
 
