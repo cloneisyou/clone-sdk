@@ -17,6 +17,11 @@ on:
         type: choice
         default: next
         options: [next, latest]
+      npm_verify_only:
+        description: Verify an already submitted npm release without republishing
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -89,6 +94,7 @@ jobs:
           tar -xzf release/*.tgz -C released-package
           node scripts/verify-release.mjs tested-package/package released-package/package
       - name: Publish package with configured trusted publisher
+        if: ${{ !inputs.npm_verify_only }}
         env:
           NPM_TAG: ${{ inputs.npm_tag || 'next' }}
         run: |
@@ -97,10 +103,28 @@ jobs:
           npm publish ./release/*.tgz --access public --tag "$NPM_TAG" --provenance
       - name: Verify anonymous registry installation
         run: |
+          set -euo pipefail
           version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')
-          npm install --prefix "$RUNNER_TEMP/npm-consumer" --ignore-scripts "@clone-ai/tab-completion@$version"
-          cd "$RUNNER_TEMP/npm-consumer"
+          package_spec="@clone-ai/tab-completion@$version"
+          unset NPM_TOKEN NODE_AUTH_TOKEN
+          export NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/anonymous-user.npmrc"
+          export NPM_CONFIG_GLOBALCONFIG="$RUNNER_TEMP/anonymous-global.npmrc"
+          touch "$NPM_CONFIG_USERCONFIG" "$NPM_CONFIG_GLOBALCONFIG"
+          # npm may accept publication before registry processing completes.
+          for attempt in {1..20}; do
+            if npm view "$package_spec" version --prefer-online > "$RUNNER_TEMP/npm-version.txt"; then
+              [[ "$(cat "$RUNNER_TEMP/npm-version.txt")" == "$version" ]] && break
+            fi
+            [[ "$attempt" -lt 20 ]] || { echo 'npm release is not available after bounded verification'; exit 1; }
+            sleep 15
+          done
+          consumer="$RUNNER_TEMP/npm-consumer"
+          npm install --prefix "$consumer" --ignore-scripts --prefer-online "$package_spec"
+          cd "$consumer"
           node --input-type=module -e 'await import("@clone-ai/tab-completion"); await import("@clone-ai/tab-completion/server")'
+          npm audit signatures
+          registry_tarball=$(npm pack "$package_spec" --pack-destination "$RUNNER_TEMP" --json | node -e 'let s=""; process.stdin.on("data",c=>s+=c).on("end",()=>console.log(JSON.parse(s)[0].filename))')
+          cmp "$RUNNER_TEMP/$registry_tarball" "$GITHUB_WORKSPACE/release/clone-ai-tab-completion-$version.tgz"
   pypi:
     if: inputs.registry == 'pypi'
     needs: [release_check, validate]
