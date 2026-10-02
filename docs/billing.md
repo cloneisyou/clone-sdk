@@ -1,8 +1,8 @@
 # Pricing and billing
 
-SDK 0.6.3 supports both sandbox and pay-as-you-go (PAYG) usage, including an optional company spending limit. Install the verified [0.6.3 release](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.3). Hosted paid activation is available only when the developer console offers it; installing the SDK never enables payment.
+SDK 0.6.4 supports both sandbox and pay-as-you-go (PAYG) usage, including an optional company spending limit. Install the verified [0.6.4 release](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.6.4). Hosted paid activation is available only when the developer console offers it; installing the SDK never enables payment.
 
-The company operating your product pays for hosted predictions. End users need no Clone account or personal subscription. SDK code is MIT licensed. The public catalog is [SDK pricing](https://clone.is/pricing#sdk); availability depends on rollout, and existing individually negotiated contracts remain unchanged.
+The company operating your product pays for hosted predictions. End users need no Clone account or personal subscription. SDK code is MIT licensed. The public catalog is [API pricing](https://clone.is/api-platform/pricing); availability depends on rollout, and existing individually negotiated contracts remain unchanged.
 
 | Item | PAYG policy |
 | --- | --- |

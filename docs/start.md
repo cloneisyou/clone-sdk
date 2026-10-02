@@ -2,7 +2,7 @@
 
 This is the entry point for your coding agent. Implement next-prompt prediction and Tab Completion using the product’s own context by default, then run automated verification. End users need no Clone account. Offer Clone account personalization only as an optional enhancement in settings; do not put a Connect screen before the composer. Preserve the product's authentication, composer, explicit send behavior and agent execution. Automatic submission is a separate, optional Clone mode with explicit end-user start and bounded scope.
 
-This guide targets **SDK 0.6.3**. Version 0.3.1 lacks the presentation, deadline and Clone mode options; inspect the installed version before using them. Onboarding documentation can change independently of that immutable package. Read this guide, [agent integration](agent-integration.md), [context mapping](context-mapping.md), [service boundaries](data-and-service.md), and the installed package's exported types and `openapi.json`. The types and schema define the wire contract. Do not stop after writing a plan or building a separate demo.
+This guide targets **SDK 0.6.4**. Version 0.3.1 lacks the presentation, deadline and Clone mode options; inspect the installed version before using them. Onboarding documentation can change independently of that immutable package. Read this guide, [agent integration](agent-integration.md), [context mapping](context-mapping.md), [service boundaries](data-and-service.md), and the installed package's exported types and `openapi.json`. The types and schema define the wire contract. Do not stop after writing a plan or building a separate demo.
 
 ## Start from one prompt
 
@@ -59,7 +59,7 @@ For the explicitly chosen sandbox path, save the key and continue without a card
 Install the public npm package using the product's existing package manager:
 
 ```sh
-npm install --save-exact @clone-ai/tab-completion@0.6.3
+npm install --save-exact @clone-ai/tab-completion@0.6.4
 ```
 
 Commit the appropriate lockfile. Node 22.13+, ESM and React 18/19 are supported. Do not upgrade the entire host application without establishing compatibility. A Git submodule is not required.

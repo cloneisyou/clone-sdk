@@ -11,6 +11,12 @@ on:
         required: true
         type: choice
         options: [npm, pypi]
+      npm_tag:
+        description: npm distribution tag assigned during publication
+        required: false
+        type: choice
+        default: next
+        options: [next, latest]
 permissions:
   contents: read
 concurrency:
@@ -82,8 +88,13 @@ jobs:
           tar -xzf artifacts/*.tgz -C tested-package
           tar -xzf release/*.tgz -C released-package
           node scripts/verify-release.mjs tested-package/package released-package/package
-      - name: Publish preview package with configured trusted publisher
-        run: npm publish release/*.tgz --access public --tag next --provenance
+      - name: Publish package with configured trusted publisher
+        env:
+          NPM_TAG: ${{ inputs.npm_tag || 'next' }}
+        run: |
+          set -euo pipefail
+          [[ "$NPM_TAG" == next || "$NPM_TAG" == latest ]]
+          npm publish release/*.tgz --access public --tag "$NPM_TAG" --provenance
       - name: Verify anonymous registry installation
         run: |
           version=$(node -p 'JSON.parse(require("fs").readFileSync("package.json")).version')

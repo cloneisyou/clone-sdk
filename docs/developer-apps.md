@@ -84,4 +84,4 @@ Do not automatically retry mutations after a lost response. GET the app list to 
 
 ## Pricing and card billing
 
-Open [SDK pricing](https://clone.is/pricing#sdk) without signing in. In [Developer apps](https://clone.is/developer/apps), open **Usage and billing** for an app to see its company usage, alert budget and optional hard limit, upcoming charge date, saved card, and invoices. Paid activation requires the customer’s explicit agreement and verified card setup. An ordinary SDK integration prompt does not authorize an agent to start a paid contract. See [billing](billing.md) for prices, timing, and recovery.
+Open [API pricing](https://clone.is/api-platform/pricing) without signing in. In [Developer apps](https://clone.is/developer/apps), open **Usage and billing** for an app to see its company usage, alert budget and optional hard limit, upcoming charge date, saved card, and invoices. Paid activation requires the customer’s explicit agreement and verified card setup. An ordinary SDK integration prompt does not authorize an agent to start a paid contract. See [billing](billing.md) for prices, timing, and recovery.

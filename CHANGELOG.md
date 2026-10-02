@@ -1,3 +1,8 @@
+# 0.6.4
+
+- Include public npm installation instructions in the distributed README and integration guides. Keep exact package versions and checksum-verified archive alternatives aligned, and point billing guidance to the API pricing page.
+- Allow a verified npm release to be published directly as `latest` or `next` through the configured trusted publisher. Preview publication remains the default.
+
 # 0.6.3
 
 - Keep pilot metrics and feedback events attributed to the originating prediction source. Fault tests remain separate from live and fixture usage after delayed responses, retries or source changes.
