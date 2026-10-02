@@ -1,6 +1,6 @@
 {
   "name": "@clone-ai/tab-completion",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Context-aware composer suggestions with optional presentation and explicitly started Clone mode.",
   "type": "module",
   "sideEffects": false,

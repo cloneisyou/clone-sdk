@@ -66,4 +66,4 @@ Return the implemented files and test results, plus any exact outstanding authen
 
 ## Paid billing requires the customer's explicit consent
 
-The [SDK pricing page](https://clone.is/pricing#sdk) is public. Production setup shows pricing and card registration before installation. **Usage and billing** remains available for company budgets, invoices and payment recovery. Creating an app, integrating the SDK, and running the bounded sandbox test do not authorize recurring billing. Only start paid activation when the customer has explicitly approved that product, PAYG unit price and company billing terms. See [billing](billing.md).
+The [API pricing page](https://clone.is/api-platform/pricing) is public. Production setup shows pricing and card registration before installation. **Usage and billing** remains available for company budgets, invoices and payment recovery. Creating an app, integrating the SDK, and running the bounded sandbox test do not authorize recurring billing. Only start paid activation when the customer has explicitly approved that product, PAYG unit price and company billing terms. See [billing](billing.md).

@@ -1,6 +1,6 @@
 # Data and service boundaries
 
-The SDK is free under the MIT license. Clone's hosted prediction API is a separate service. The prepared PAYG policy is documented in [pricing and billing](billing.md). Confirm current availability and prices in the [service catalog](https://clone.is/pricing#sdk) when hosted billing launches; retention commitments and any SLA must still be confirmed with Clone. This repository is not a service-level agreement. See Clone's [privacy policy](https://clone.is/privacy) and [terms](https://clone.is/terms), and confirm application-specific service commitments through [contact@clone.is](mailto:contact@clone.is).
+The SDK is free under the MIT license. Clone's hosted prediction API is a separate service. The prepared PAYG policy is documented in [pricing and billing](billing.md). Confirm current availability and prices in the [service catalog](https://clone.is/api-platform/pricing) when hosted billing launches; retention commitments and any SLA must still be confirmed with Clone. This repository is not a service-level agreement. See Clone's [privacy policy](https://clone.is/privacy) and [terms](https://clone.is/terms), and confirm application-specific service commitments through [contact@clone.is](mailto:contact@clone.is).
 
 ## What is sent
 
