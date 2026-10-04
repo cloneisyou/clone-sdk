@@ -8,7 +8,7 @@ Python 3.11+. Install `clone-sdk` from [PyPI](https://pypi.org/project/clone-sdk
 import `clone_sdk`.
 
 ```sh
-python -m pip install clone-sdk==0.2.0
+python -m pip install clone-sdk==0.2.1
 ```
 
 ```python
@@ -72,7 +72,12 @@ client.cancel(subject, "prediction-001")
 ```
 
 Only report `submitted` after your host accepts the send. Reuse an event ID on
-delivery retries. Events contain no prompt text and do not change billing.
+delivery retries. Behavior receipts and outcomes contain no prompt text and do
+not change billing. Explicit evaluations can supply a reason; guidance and edited
+successful submissions require `content_opt_in=True` before sending text. Feedback
+memory is encrypted, app/user scoped, and expires after 30 days. Call
+`client.clear_feedback(subject)` to clear it. See
+[feedback](https://clone.is/docs/api-reference#observation-events) for event fields and clearing semantics.
 Read the [public API](https://clone.is/docs/api-reference),
 [billing](https://clone.is/docs/billing) and
 [reliability](https://clone.is/docs/reliability) contracts before production use.

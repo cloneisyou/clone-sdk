@@ -4,7 +4,7 @@
 
 Mount the editor and process typing, attachments, Undo, IME and manual send independently of Clone. Never await prediction in the normal send path, disable the input during prediction, or gate the whole product on Clone health. Hide suggestions on failures. Telemetry is best effort.
 
-SDK 0.7.0 uses a 15-second default client deadline (configurable up to 30 seconds) including response-body reads. The reusable server client limits concurrent requests to 16 by default and fails fast on saturation. The controller drops expired, canceled and identity-mismatched results. Recovery does not send anything automatically. A request whose outcome is unknown must retain its ID and body for reconciliation.
+SDK 0.7.1 uses a 15-second default client deadline (configurable up to 30 seconds) including response-body reads. The reusable server client limits concurrent requests to 16 by default and fails fast on saturation. The controller drops expired, canceled and identity-mismatched results. Recovery does not send anything automatically. A request whose outcome is unknown must retain its ID and body for reconciliation.
 
 ## Configured limits are not measured capacity
 

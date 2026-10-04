@@ -1,6 +1,6 @@
 # Data and service boundaries
 
-The SDK is free under the MIT license. Clone's hosted prediction API is a separate service. The prepared PAYG policy is documented in [pricing and billing](billing.md). Confirm current availability and prices in the [service catalog](https://clone.is/api-platform/pricing) when hosted billing launches; retention commitments and any SLA must still be confirmed with Clone. This repository is not a service-level agreement. See Clone's [privacy policy](https://clone.is/privacy) and [terms](https://clone.is/terms), and confirm application-specific service commitments through [contact@clone.is](mailto:contact@clone.is).
+The SDK is free under the MIT license. Clone's hosted prediction API is a separate service. Hosted PAYG billing is available through the developer console with explicit company consent. See [pricing and billing](billing.md) and the current [service catalog](https://clone.is/api-platform/pricing). Confirm application-specific retention commitments and any SLA with Clone. This repository is not a service-level agreement. See Clone's [privacy policy](https://clone.is/privacy) and [terms](https://clone.is/terms), and confirm application-specific service commitments through [contact@clone.is](mailto:contact@clone.is).
 
 ## What is sent
 
@@ -22,4 +22,4 @@ The demo returns deterministic synthetic suggestions. It proves UI mechanics onl
 
 ## Feedback retention
 
-With the API feedback deployment, explicit evaluations and opted-in edited successful submissions are encrypted, scoped to the app/user/connection grant, capped at 50 records per user and retained for 30 days. They can influence subsequent new predictions as bounded evidence. Behavior receipts remain content-free; task outcomes are host reports. Clearing removes memory and fences off late old-request events, in-flight results and replay. No shared model-weight training is performed. See [feedback](feedback.md).
+Explicit evaluations and opted-in edited successful submissions are encrypted, scoped to the app/user/connection grant, capped at 50 records per user and retained for 30 days. They can influence subsequent new predictions as bounded evidence. Behavior receipts remain content-free; task outcomes are host reports. Clearing removes memory and fences off late old-request events, in-flight results and replay. No shared model-weight training is performed. See [feedback](feedback.md).
