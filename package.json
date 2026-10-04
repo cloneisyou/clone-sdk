@@ -1,6 +1,6 @@
 {
   "name": "@clone-ai/prompt-prediction",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Context-aware composer suggestions with optional presentation and explicitly started Clone mode.",
   "type": "module",
   "sideEffects": false,
@@ -90,7 +90,7 @@
     "type": "git",
     "url": "git+https://github.com/cloneisyou/clone-sdk.git"
   },
-  "homepage": "https://github.com/cloneisyou/clone-sdk#readme",
+  "homepage": "https://clone.is/docs/sdk-quickstart",
   "bugs": {
     "url": "https://github.com/cloneisyou/clone-sdk/issues"
   },

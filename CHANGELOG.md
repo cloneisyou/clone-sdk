@@ -1,3 +1,8 @@
+# 0.7.1
+
+- Publish current npm and PyPI install instructions with Python client 0.2.1 and the public SDK quickstart as the npm homepage.
+- Document hosted PAYG availability and distinguish content-free behavior receipts from explicitly opted-in feedback text. Runtime behavior is unchanged.
+
 # 0.7.0
 
 - Publish the JavaScript SDK as `@clone-ai/prompt-prediction`. Update imports, generated integration examples, archive names, npm verification and installation guides. Runtime exports and prediction behavior remain unchanged.

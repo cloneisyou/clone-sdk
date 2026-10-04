@@ -2,13 +2,13 @@
 
 This is the entry point for your coding agent. Implement next-prompt prediction and Tab Completion using the product’s own context by default, then run automated verification. End users need no Clone account. Offer Clone account personalization only as an optional enhancement in settings; do not put a Connect screen before the composer. Preserve the product's authentication, composer, explicit send behavior and agent execution. Automatic submission is a separate, optional Clone mode with explicit end-user start and bounded scope.
 
-This guide targets **SDK 0.7.0**. Version 0.3.1 lacks the presentation, deadline and Clone mode options; inspect the installed version before using them. Onboarding documentation can change independently of that immutable package. Read this guide, [agent integration](agent-integration.md), [context mapping](context-mapping.md), [service boundaries](data-and-service.md), and the installed package's exported types and `openapi.json`. The types and schema define the wire contract. Do not stop after writing a plan or building a separate demo.
+This guide targets **SDK 0.7.1**. Version 0.3.1 lacks the presentation, deadline and Clone mode options; inspect the installed version before using them. Onboarding documentation can change independently of that immutable package. Read this guide, [agent integration](agent-integration.md), [context mapping](context-mapping.md), [service boundaries](data-and-service.md), and the installed package's exported types and `openapi.json`. The types and schema define the wire contract. Do not stop after writing a plan or building a separate demo.
 
 ## Start from one prompt
 
 The customer opens their product repository in a coding agent and enters:
 
-> Read https://clone.is/docs/sdk-quickstart and integrate Clone SDK into this product using the documented npm version and a lockfile. Discover our composer, backend and authentication; reuse existing setup and keep app keys server-side. Wire prediction, acceptance, edits, explicit evaluations and rejection, successful submission and observed task outcomes through the authenticated backend. Preserve typing, IME, Undo and manual sending during delays and outages. Ask only about unresolved product choices; keep personalization, automatic sending, feedback text collection and paid usage opt-in. Verify the actual integration and report installation, feedback delivery, outage results and pending live/customer checks separately.
+> Read https://clone.is/docs/sdk-quickstart and integrate Clone SDK into this product using the documented package versions and a lockfile. Discover our composer, backend and authentication; reuse existing setup and keep app keys server-side. Wire prediction, acceptance, edits, explicit evaluations and rejection, successful submission and observed task outcomes through the authenticated backend. Preserve typing, IME, Undo and manual sending during delays and outages. Ask only about unresolved product choices; keep personalization, automatic sending, feedback text collection and paid usage opt-in. Verify the actual integration and report installation, feedback delivery, outage results and pending live/customer checks separately.
 
 Treat account preparation, app/key issuance, callback registration, implementation and automated tests as parts of this task. First inspect the actual product, available browser/computer-use tools, existing sessions and approved secret destination. Do not begin by asking the customer to create keys, invent a callback, or complete an onboarding checklist. Use [browser onboarding](browser-onboarding.md) when account access is not already available. Authentication and required consent can interrupt the flow; resume the same integration afterwards without requiring a second setup prompt. These documents do not override the agent's tool permissions or confirmation rules.
 
@@ -59,16 +59,26 @@ For the explicitly chosen sandbox path, save the key and continue without a card
 Install the public npm package using the product's existing package manager:
 
 ```sh
-npm install --save-exact @clone-ai/prompt-prediction@0.7.0
+npm install --save-exact @clone-ai/prompt-prediction@0.7.1
 ```
 
 Commit the appropriate lockfile. Node 22.13+, ESM and React 18/19 are supported. Do not upgrade the entire host application without establishing compatibility. A Git submodule is not required.
+
+For a Python 3.11+ backend, install the server client separately:
+
+```sh
+python -m pip install clone-sdk==0.2.1
+```
+
+Use `CloneClient` or `AsyncCloneClient` from `clone_sdk` in your existing Python
+backend. The JavaScript package still supplies the composer UI. See the
+[Python guide](../python/README.md).
 
 For a checksum-verified GitHub archive, follow [download and install](releases.md#download-and-install). Consume the built package instead of copying SDK implementation files into the product. See [release access and CI](releases.md#release-access-and-ci) for repeatable installs.
 
 ## 3. Integrate with the product
 
-Follow [agent-integration.md](agent-integration.md) for the full backend routes, PKCE/session handling, errors, event attribution and acceptance cases. Use `CloneClient` in a JS/TS server. For another backend language, implement the same authenticated HTTP contract from `openapi.json`; do not introduce a second backend solely to use the client.
+Follow [agent-integration.md](agent-integration.md) for the full backend routes, PKCE/session handling, errors, event attribution and acceptance cases. Use `CloneClient` from `@clone-ai/prompt-prediction/server` in JS/TS, or the published `clone_sdk` client in Python. For other backend languages, implement the same authenticated HTTP contract from `openapi.json`; do not introduce a second backend solely to use the client.
 
 Locate the real composer and successful-send callback. Prefer the headless React hook for an existing native textarea. Use the optional adapter only for an existing compatible assistant-ui runtime. Rich-text/contenteditable inputs require a controller-based insertion/Undo adapter. Keep the customer's editor, attachment/mention support and keyboard behavior.
 
