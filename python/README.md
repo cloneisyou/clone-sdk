@@ -4,11 +4,11 @@ Server-side synchronous and asynchronous clients for Clone predictions, usage,
 observation events, cancellation and optional user-approved Clone connections.
 Composer UI stays in the JavaScript SDK. This client never submits a user message.
 
-Python 3.11+. The candidate distribution is `clone-sdk`; import `clone_sdk`.
-Until the first PyPI publication, install the verified wheel from the release.
+Python 3.11+. Install `clone-sdk` from [PyPI](https://pypi.org/project/clone-sdk/);
+import `clone_sdk`.
 
 ```sh
-pip install ./clone_sdk-0.2.0-py3-none-any.whl
+python -m pip install clone-sdk==0.2.0
 ```
 
 ```python
