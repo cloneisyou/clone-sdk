@@ -5,8 +5,8 @@ observation events, cancellation and optional user-approved Clone connections.
 Composer UI stays in the JavaScript SDK. This client never submits a user message.
 
 For selected local artifacts, `image_artifact(path, id="draft", revision="1")` prepares a bounded JPEG/PNG.
-The media additions below are unreleased and require the corresponding SDK build and matching API deployment.
-Install the `media` extra from the matching SDK build and call
+Python SDK 0.3.0 supports original video/audio review with the matching API deployment.
+Install `clone-sdk[media]==0.3.0` from PyPI and call
 `video_artifact(path, id="draft", revision="1")` to prepare the original video/audio and four preview frames, or `audio_artifact(...)` for a selected audio file.
 Pass the returned dictionary as the prediction request's `artifact`.
 Preparation is local; the subsequent explicit prediction uploads selected pixels and original media.

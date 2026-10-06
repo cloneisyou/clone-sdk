@@ -6,7 +6,7 @@ Add next-prompt prediction and Tab completion to your existing composer. Suggest
 
 Use your product's conversation, selected artifact and user preferences as context. Your end users do not need a Clone account. Connecting a user's Clone context is optional.
 
-Unreleased media support prepares selected image, original video/audio and audio artifacts locally. An explicit prediction uploads those sources and returns an independent structured review before the suggested prompt. Matching SDK/API builds and provider configuration are required. See [media context and coverage](docs/context-mapping.md).
+SDK 0.8.0 prepares selected image, original video/audio and audio artifacts locally. An explicit prediction uploads those sources and returns an independent structured review before the suggested prompt. Matching SDK/API builds and provider configuration are required. See [media context and coverage](docs/context-mapping.md).
 
 - **Headless controller** for custom editors.
 - **React hook and textarea**, plus an optional assistant-ui adapter.
