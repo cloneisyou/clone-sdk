@@ -18,7 +18,7 @@ Python 3.11+. Install `clone-sdk` from [PyPI](https://pypi.org/project/clone-sdk
 import `clone_sdk`.
 
 ```sh
-python -m pip install clone-sdk==0.2.1
+python -m pip install clone-sdk==0.3.0
 ```
 
 ```python

@@ -2,7 +2,7 @@
 
 Add next-prompt prediction and Tab completion to your existing composer. Suggestions appear as ghost text. **Tab inserts; your application decides when to send.**
 
-**SDK 0.7.1:** instant display remains the default. Set `presentation="typewriter"` for a cancellable display animation after the complete JSON response arrives; the API does not stream. These options and Clone mode are absent from the 0.3.1 package. Keep ordinary typing and sending available when predictions are loading, fail, or never return. See the [rendering contract](docs/agent-integration.md#suggestion-rendering-contract) before building a custom editor adapter.
+**SDK 0.8.0:** instant display remains the default. Set `presentation="typewriter"` for a cancellable display animation after the complete JSON response arrives; the API does not stream. These options and Clone mode are absent from the 0.3.1 package. Keep ordinary typing and sending available when predictions are loading, fail, or never return. See the [rendering contract](docs/agent-integration.md#suggestion-rendering-contract) before building a custom editor adapter.
 
 Use your product's conversation, selected artifact and user preferences as context. Your end users do not need a Clone account. Connecting a user's Clone context is optional.
 
@@ -36,7 +36,7 @@ Node **22.13+**, ESM. React integrations support **18 and 19**. The headless con
 Install the public npm package. Existing integrations can keep their pinned version while validating an upgrade:
 
 ```sh
-npm install --save-exact @clone-ai/prompt-prediction@0.7.1
+npm install --save-exact @clone-ai/prompt-prediction@0.8.0
 ```
 
 Use your project's package manager and commit its lockfile. Verified [GitHub release archives](docs/releases.md#download-and-install) remain available. Hosted API access requires a separate app key.
@@ -120,4 +120,4 @@ See [Contributing](CONTRIBUTING.md) for the repository layout and validation com
 
 ## Feedback loop
 
-SDK 0.7.1 can return explicit rejection, evaluations, edited successful submissions and host-observed outcomes to the API. Wire the packaged tracker to your host send and authenticated proxy. Text collection is off by default. See [feedback integration](docs/feedback.md) for scoped memory, delivery, expiry and clearing. These features require the API feedback deployment; event collection alone is not model learning.
+SDK 0.8.0 can return explicit rejection, evaluations, edited successful submissions and host-observed outcomes to the API. Wire the packaged tracker to your host send and authenticated proxy. Text collection is off by default. See [feedback integration](docs/feedback.md) for scoped memory, delivery, expiry and clearing. These features require the API feedback deployment; event collection alone is not model learning.

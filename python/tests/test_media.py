@@ -3,7 +3,7 @@ import hashlib
 
 import pytest
 
-from clone_sdk import CloneError, image_artifact, video_artifact, audio_artifact
+from clone_sdk import CloneError, audio_artifact, image_artifact, video_artifact
 from clone_sdk.client import _identity
 from clone_sdk.models import Prediction
 

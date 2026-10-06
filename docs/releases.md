@@ -4,6 +4,10 @@
 
 During 0.x, breaking public contract changes increment the minor version; compatible fixes increment the patch. Once 1.0 is reached, use SemVer major/minor/patch rules. The public contract includes exported types and documented behavior such as Tab insertion, events, cancellation, and submission ownership. Never overwrite a published version or move its tag.
 
+## SDK 0.8.0 and Python 0.3.0
+
+Original image, video and audio artifacts use OpenAI review before next-prompt prediction. The source-bound report includes criterion findings, timestamp ranges, prepared input coverage and missing evidence. Four preview frames do not represent a complete video review. Media predictions have a 180-second default deadline.
+
 ## SDK 0.7.1 and Python 0.2.1
 
 This patch publishes current npm/PyPI installation instructions, Python backend
@@ -17,10 +21,10 @@ Version 0.7.0 publishes the JavaScript SDK as `@clone-ai/prompt-prediction` and 
 
 ## Download and install
 
-The current release is [v0.7.1](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.7.1). Install its public npm package with your existing package manager:
+The current release is [v0.8.0](https://github.com/cloneisyou/clone-sdk/releases/tag/v0.8.0). Install its public npm package with your existing package manager:
 
 ```sh
-npm install --save-exact @clone-ai/prompt-prediction@0.7.1
+npm install --save-exact @clone-ai/prompt-prediction@0.8.0
 ```
 
 Commit the lockfile. To install a checksum-verified GitHub archive instead, download its `.tgz` and `.sha256` into `vendor/clone-sdk`.
@@ -29,25 +33,25 @@ This repository is public; downloads require no GitHub credential:
 
 ```sh
 mkdir -p vendor/clone-sdk
-release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.7.1
-curl --fail --location "$release_url/clone-ai-prompt-prediction-0.7.1.tgz" \
-  --output vendor/clone-sdk/clone-ai-prompt-prediction-0.7.1.tgz
-curl --fail --location "$release_url/clone-ai-prompt-prediction-0.7.1.tgz.sha256" \
-  --output vendor/clone-sdk/clone-ai-prompt-prediction-0.7.1.tgz.sha256
+release_url=https://github.com/cloneisyou/clone-sdk/releases/download/v0.8.0
+curl --fail --location "$release_url/clone-ai-prompt-prediction-0.8.0.tgz" \
+  --output vendor/clone-sdk/clone-ai-prompt-prediction-0.8.0.tgz
+curl --fail --location "$release_url/clone-ai-prompt-prediction-0.8.0.tgz.sha256" \
+  --output vendor/clone-sdk/clone-ai-prompt-prediction-0.8.0.tgz.sha256
 ```
 
 If GitHub reports restricted access, use an account with repository read access:
 
 ```sh
-gh release download v0.7.1 --repo cloneisyou/clone-sdk \
-  --pattern 'clone-ai-prompt-prediction-0.7.1.tgz*' --dir vendor/clone-sdk
+gh release download v0.8.0 --repo cloneisyou/clone-sdk \
+  --pattern 'clone-ai-prompt-prediction-0.8.0.tgz*' --dir vendor/clone-sdk
 ```
 
 Then verify and install with your existing package manager:
 
 ```sh
-(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-prompt-prediction-0.7.1.tgz.sha256)
-npm install ./vendor/clone-sdk/clone-ai-prompt-prediction-0.7.1.tgz
+(cd vendor/clone-sdk && shasum -a 256 -c clone-ai-prompt-prediction-0.8.0.tgz.sha256)
+npm install ./vendor/clone-sdk/clone-ai-prompt-prediction-0.8.0.tgz
 ```
 
 On Linux, use `sha256sum -c` in place of `shasum -a 256 -c`. Commit the lockfile. Do not put access tokens in package URLs or lockfiles.
