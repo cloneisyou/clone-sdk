@@ -5,6 +5,8 @@ import { ClonePredictionError } from './http.js';
 export type ArtifactContext = components['schemas']['ArtifactContext'];
 export type ArtifactImage = components['schemas']['ArtifactImage'];
 export type MediaReceipt = components['schemas']['MediaReceipt'];
+export type NativeMedia = components['schemas']['NativeMedia'];
+export type ArtifactReview = components['schemas']['ArtifactReview'];
 type ArtifactIdentity = Pick<ArtifactContext, 'id' | 'revision' | 'summary' | 'selection'>;
 
 function base64(bytes: Uint8Array): string {
@@ -29,16 +31,22 @@ export function artifactImage(bytes: Uint8Array, mimeType: ArtifactImage['mime_t
 /** Refuse a candidate from a server that did not inspect these exact pixels. */
 export async function verifyMediaReview(request: CompletionRequest, output: PredictionOutput): Promise<void> {
   const images = request.artifact?.images ?? [];
-  if (!images.length) return;
-  const expected = await Promise.all(images.map(async image => {
+  const media = request.artifact?.media ?? [];
+  if (!images.length && !media.length) return;
+  const expected = await Promise.all([...images, ...media].map(async image => {
     const bytes = Uint8Array.from(atob(image.data), value => value.charCodeAt(0));
     const digest = await crypto.subtle.digest('SHA-256', bytes);
     const sha256 = Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
-    return [image.ref, sha256, image.timestamp_seconds ?? null];
+    if ('sha256' in image && image.sha256 !== sha256) throw new ClonePredictionError('artifact_source_changed', 422);
+    return [image.ref, sha256, 'timestamp_seconds' in image ? image.timestamp_seconds ?? null : null];
   }));
   const actual = (output.media_review ?? []).map(item => [item.ref, item.sha256, item.timestamp_seconds ?? null]);
   if (JSON.stringify(expected) !== JSON.stringify(actual)) {
     throw new ClonePredictionError('media_review_not_acknowledged', 502);
+  }
+  if (media.length && (!output.artifact_review || JSON.stringify(output.artifact_review.sources.map(
+    item => [item.ref, item.sha256, item.timestamp_seconds ?? null])) !== JSON.stringify(expected))) {
+    throw new ClonePredictionError('native_media_review_missing', 502);
   }
 }
 
@@ -90,7 +98,7 @@ function mediaEvent(video: HTMLVideoElement, event: string, signal?: AbortSignal
   });
 }
 
-/** Decode a local video Blob into four timestamped frame samples. Audio and intervening frames are not reviewed. */
+/** Prepare the original video/audio plus preview frames. A later predict call uploads the whole source. */
 export async function prepareVideoArtifact(file: Blob, identity: ArtifactIdentity,
   options: { signal?: AbortSignal } = {}): Promise<ArtifactContext> {
   if (file.size > 100 * 1024 * 1024) throw new ClonePredictionError('artifact_source_too_large', 413);
@@ -120,10 +128,40 @@ export async function prepareVideoArtifact(file: Blob, identity: ArtifactIdentit
       surface.getContext('2d')!.drawImage(video, 0, 0, surface.width, surface.height);
       images.push(await canvasImage(surface, identity.id + '#t=' + timestamp, timestamp));
     }
-    return { ...identity, kind: 'video', duration_seconds: duration, images };
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    const sha256 = Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+    if (options.signal?.aborted) throw options.signal.reason;
+    return { ...identity, kind: 'video', duration_seconds: duration, images, media: [{
+      ref: identity.id, mime_type: file.type || 'video/mp4', data: base64(bytes), sha256,
+      duration_seconds: duration, diagnostics: { full_decode: false, player_verified: false },
+    }] };
   } finally {
     video.removeAttribute('src');
     video.load();
     URL.revokeObjectURL(url);
   }
+}
+
+/** Prepare an original audio source and decoded duration. Preparation itself sends nothing. */
+export async function prepareAudioArtifact(file: Blob, identity: ArtifactIdentity,
+  options: { signal?: AbortSignal } = {}): Promise<ArtifactContext> {
+  if (!file.size || file.size > 100 * 1024 * 1024) throw new ClonePredictionError('artifact_source_too_large', 413);
+  const bytes = await file.arrayBuffer();
+  if (options.signal?.aborted) throw options.signal.reason;
+  const audio = new AudioContext();
+  try {
+    const decoded = await audio.decodeAudioData(bytes.slice(0));
+    if (!Number.isFinite(decoded.duration) || decoded.duration <= 0 || decoded.duration > 3600) {
+      throw new ClonePredictionError('invalid_audio_duration', 422);
+    }
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    if (options.signal?.aborted) throw options.signal.reason;
+    return { ...identity, kind: 'other', media: [{ ref: identity.id, mime_type: file.type || 'audio/wav',
+      data: base64(new Uint8Array(bytes)),
+      sha256: Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join(''),
+      duration_seconds: decoded.duration,
+      diagnostics: { full_decode: true, audio_track_present: true, player_verified: false },
+    }] };
+  } finally { await audio.close(); }
 }

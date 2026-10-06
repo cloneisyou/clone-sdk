@@ -4,6 +4,14 @@
       "ArtifactContext": {
         "additionalProperties": false,
         "properties": {
+          "criteria": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewCriterion"
+            },
+            "maxItems": 100,
+            "title": "Criteria",
+            "type": "array"
+          },
           "duration_seconds": {
             "anyOf": [
               {
@@ -40,6 +48,14 @@
             ],
             "title": "Kind",
             "type": "string"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/NativeMedia"
+            },
+            "maxItems": 2,
+            "title": "Media",
+            "type": "array"
           },
           "revision": {
             "maxLength": 200,
@@ -110,6 +126,69 @@
           "data"
         ],
         "title": "ArtifactImage",
+        "type": "object"
+      },
+      "ArtifactReview": {
+        "additionalProperties": false,
+        "properties": {
+          "cache_hit": {
+            "default": false,
+            "title": "Cache Hit",
+            "type": "boolean"
+          },
+          "contract_sha256": {
+            "title": "Contract Sha256",
+            "type": "string"
+          },
+          "coverage": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Coverage",
+            "type": "array"
+          },
+          "input_tokens": {
+            "minimum": 0.0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "judgment": {
+            "$ref": "#/components/schemas/ReviewJudgment"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "minimum": 0.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "judgment",
+          "sources",
+          "provider",
+          "model",
+          "input_tokens",
+          "output_tokens",
+          "coverage",
+          "contract_sha256"
+        ],
+        "title": "ArtifactReview",
         "type": "object"
       },
       "CancelOutput": {
@@ -569,6 +648,53 @@
         "title": "Message",
         "type": "object"
       },
+      "NativeMedia": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "maxLength": 139810136,
+            "minLength": 4,
+            "title": "Data",
+            "type": "string"
+          },
+          "diagnostics": {
+            "additionalProperties": true,
+            "title": "Diagnostics",
+            "type": "object"
+          },
+          "duration_seconds": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 3600.0,
+            "title": "Duration Seconds",
+            "type": "number"
+          },
+          "mime_type": {
+            "pattern": "^(video/(mp4|quicktime|webm|x-matroska)|audio/(wav|mpeg|mp4|webm))$",
+            "title": "Mime Type",
+            "type": "string"
+          },
+          "ref": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Ref",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ref",
+          "mime_type",
+          "data",
+          "duration_seconds",
+          "sha256"
+        ],
+        "title": "NativeMedia",
+        "type": "object"
+      },
       "PredictionInput": {
         "additionalProperties": false,
         "properties": {
@@ -674,6 +800,16 @@
       "PredictionOutput": {
         "additionalProperties": false,
         "properties": {
+          "artifact_review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactReview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "completion": {
             "title": "Completion",
             "type": "string"
@@ -781,6 +917,181 @@
           "prediction_units"
         ],
         "title": "PredictionUsage",
+        "type": "object"
+      },
+      "ReviewCriterion": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "title": "ReviewCriterion",
+        "type": "object"
+      },
+      "ReviewFinding": {
+        "additionalProperties": false,
+        "properties": {
+          "correction": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Correction",
+            "type": "string"
+          },
+          "criterion_id": {
+            "title": "Criterion Id",
+            "type": "string"
+          },
+          "end_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Seconds"
+          },
+          "modality": {
+            "enum": [
+              "visual",
+              "motion",
+              "audio",
+              "synchronization"
+            ],
+            "title": "Modality",
+            "type": "string"
+          },
+          "observation": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Observation",
+            "type": "string"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "start_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Seconds"
+          }
+        },
+        "required": [
+          "criterion_id",
+          "source_ref",
+          "modality",
+          "observation",
+          "correction"
+        ],
+        "title": "ReviewFinding",
+        "type": "object"
+      },
+      "ReviewJudgment": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "enum": [
+              "approve",
+              "revise",
+              "request_evidence"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewFinding"
+            },
+            "maxItems": 100,
+            "title": "Findings",
+            "type": "array"
+          },
+          "revisit": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewRange"
+            },
+            "maxItems": 4,
+            "title": "Revisit",
+            "type": "array"
+          },
+          "suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Suggestions",
+            "type": "array"
+          },
+          "unverified": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Unverified",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decision"
+        ],
+        "title": "ReviewJudgment",
+        "type": "object"
+      },
+      "ReviewRange": {
+        "additionalProperties": false,
+        "properties": {
+          "end_seconds": {
+            "exclusiveMinimum": 0.0,
+            "title": "End Seconds",
+            "type": "number"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "start_seconds": {
+            "minimum": 0.0,
+            "title": "Start Seconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "source_ref",
+          "start_seconds",
+          "end_seconds",
+          "reason"
+        ],
+        "title": "ReviewRange",
         "type": "object"
       },
       "RevokeOutput": {

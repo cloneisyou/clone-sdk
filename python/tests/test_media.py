@@ -3,7 +3,7 @@ import hashlib
 
 import pytest
 
-from clone_sdk import CloneError, image_artifact, video_artifact
+from clone_sdk import CloneError, image_artifact, video_artifact, audio_artifact
 from clone_sdk.client import _identity
 from clone_sdk.models import Prediction
 
@@ -50,3 +50,22 @@ def test_video_preparation_samples_actual_opening_and_ending_pixels(tmp_path):
     assert artifact["images"][0]["timestamp_seconds"] == 0
     assert artifact["images"][-1]["timestamp_seconds"] >= 3.8
     assert artifact["images"][0]["data"] != artifact["images"][-1]["data"]
+    assert base64.b64decode(artifact["media"][0]["data"]) == path.read_bytes()
+    assert artifact["media"][0]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert artifact["media"][0]["diagnostics"]["decoded_video_frames"] == 40
+
+
+def test_audio_preparation_preserves_original_source_and_duration(tmp_path):
+    import wave
+    path = tmp_path / "tone.wav"
+    with wave.open(str(path), "wb") as output:
+        output.setnchannels(1)
+        output.setsampwidth(2)
+        output.setframerate(16000)
+        output.writeframes(b"\x00\x00" * 16000)
+    artifact = audio_artifact(path, id="audio", revision="1")
+    media = artifact["media"][0]
+    assert media["mime_type"] == "audio/wav" and media["duration_seconds"] == 1
+    assert base64.b64decode(media["data"]) == path.read_bytes()
+    assert media["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert media["diagnostics"]["decoded_audio_frames"] > 0

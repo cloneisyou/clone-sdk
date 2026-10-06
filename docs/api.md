@@ -28,7 +28,7 @@ App keys do not manage company billing or grant access to arbitrary Clone accoun
 | `draft` | `text` up to 8,000 characters and monotonic `revision` |
 | `context_revision` | Change when relevant conversation, artifact, preferences or selection changes |
 | `messages` | Up to 30 recent turns, each up to 8,000 characters; preserve `role` and `origin` |
-| `artifact` | Optional `video`, `slides` or `other` with ID, revision, selection and a known text summary |
+| `artifact` | Optional `image`, `video`, `slides` or `other` with identity, summary, `images`, original `media`, and explicit `criteria` |
 | `user_preferences` | Optional product-owned preferences, up to 4,000 characters |
 | `connection_id` | Omit or null for product context; otherwise an explicitly authorized connection |
 | `language` | Requested output language, default `auto` |

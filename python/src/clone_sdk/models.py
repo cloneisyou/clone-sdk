@@ -35,6 +35,7 @@ class Prediction(ResponseModel):
     usage: PredictionUsage
     feedback_revision: str = ""
     media_review: list[MediaReceipt] = Field(default_factory=list)
+    artifact_review: dict | None = None
 
 
 class Usage(ResponseModel):

@@ -98,12 +98,13 @@ export class CompletionController {
     };
     this.emit({ status: 'loading', candidate: null, error: null });
     if (generation !== this.generation || this.disposed) return;
-    const timeout = this.options.requestTimeoutMs ?? 15_000;
+    const nativeReview = !!(request.artifact?.media?.length || request.artifact?.images?.length);
+    const timeout = this.options.requestTimeoutMs ?? (nativeReview ? 180_000 : 15_000);
     this.deadline = setTimeout(() => {
       if (generation !== this.generation || this.disposed) return;
       this.invalidate(new DOMException('Prediction timed out', 'TimeoutError'));
       this.emit({ status: 'unavailable', candidate: null, error: 'prediction_timeout' });
-    }, Number.isFinite(timeout) ? Math.max(1, Math.min(timeout, 30_000)) : 15_000);
+    }, Number.isFinite(timeout) ? Math.max(1, Math.min(timeout, nativeReview ? 180_000 : 30_000)) : 15_000);
     try {
       const candidate = await this.options.transport(request, { signal: abort.signal });
       if (this.disposed || abort.signal.aborted || generation !== this.generation) return;

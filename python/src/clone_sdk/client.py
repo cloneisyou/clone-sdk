@@ -95,15 +95,27 @@ def _identity(result: Prediction, request: Mapping[str, Any]) -> Prediction:
     )
     if expected != actual:
         raise CloneError("response_identity_mismatch", 502)
-    images = (request.get("artifact") or {}).get("images") or []
-    if images:
+    artifact = request.get("artifact") or {}
+    images = artifact.get("images") or []
+    media = artifact.get("media") or []
+    if images or media:
         expected_media = [
-            (image["ref"], hashlib.sha256(base64.b64decode(image["data"], validate=True)).hexdigest(),
-             image.get("timestamp_seconds")) for image in images
+            (
+                image["ref"],
+                hashlib.sha256(base64.b64decode(image["data"], validate=True)).hexdigest(),
+                image.get("timestamp_seconds"),
+            )
+            for image in [*images, *media]
         ]
         actual_media = [(item.ref, item.sha256, item.timestamp_seconds) for item in result.media_review]
         if expected_media != actual_media:
             raise CloneError("media_review_not_acknowledged", 502)
+        if media:
+            sources = (result.artifact_review or {}).get("sources") or []
+            if [
+                (item.get("ref"), item.get("sha256"), item.get("timestamp_seconds")) for item in sources
+            ] != expected_media:
+                raise CloneError("native_media_review_missing", 502)
     if result.status == "abstained" and (result.completion or result.usage.prediction_units):
         raise CloneError("invalid_response", 502)
     return result
@@ -177,20 +189,24 @@ class CloneClient(_Options):
             limits=httpx.Limits(max_connections=self.limit, max_keepalive_connections=self.limit),
         )
 
-    def _call(self, path: str, model: type[T], body: dict | None = None) -> T:
+    def _call(
+        self, path: str, model: type[T], body: dict | None = None, *, timeout: float | None = None
+    ) -> T:
         if not self._slots.acquire(blocking=False):
             raise CloneError("client_capacity_exceeded", 503)
         try:
             start = time.monotonic()
+            timeout = self.timeout if timeout is None else timeout
             with self._client.stream(
                 "GET" if body is None else "POST",
                 self.base_url + "/v1" + path,
                 headers=self.headers,
                 json=body,
+                timeout=timeout,
             ) as response:
                 data = bytearray()
                 for chunk in response.iter_bytes():
-                    if time.monotonic() - start > self.timeout:
+                    if time.monotonic() - start > timeout:
                         raise CloneError("request_timeout", 504)
                     data.extend(chunk)
                     if len(data) > MAX_RESPONSE_BYTES:
@@ -204,7 +220,17 @@ class CloneClient(_Options):
             self._slots.release()
 
     def predict(self, user_id: str, request: Mapping[str, Any]) -> Prediction:
-        return _identity(self._call("/predictions", Prediction, {**request, "user_id": user_id}), request)
+        return _identity(
+            self._call(
+                "/predictions",
+                Prediction,
+                {**request, "user_id": user_id},
+                timeout=180
+                if any((request.get("artifact") or {}).get(key) for key in ("media", "images"))
+                else None,
+            ),
+            request,
+        )
 
     def record_event(self, user_id: str, event: Mapping[str, Any]) -> EventResult:
         return self._call("/prediction-events", EventResult, {**event, "user_id": user_id})
@@ -265,17 +291,21 @@ class AsyncCloneClient(_Options):
             limits=httpx.Limits(max_connections=self.limit, max_keepalive_connections=self.limit),
         )
 
-    async def _call(self, path: str, model: type[T], body: dict | None = None) -> T:
+    async def _call(
+        self, path: str, model: type[T], body: dict | None = None, *, timeout: float | None = None
+    ) -> T:
         if self._in_flight >= self.limit:
             raise CloneError("client_capacity_exceeded", 503)
         self._in_flight += 1
         try:
-            async with asyncio.timeout(self.timeout):
+            timeout = self.timeout if timeout is None else timeout
+            async with asyncio.timeout(timeout):
                 async with self._client.stream(
                     "GET" if body is None else "POST",
                     self.base_url + "/v1" + path,
                     headers=self.headers,
                     json=body,
+                    timeout=timeout,
                 ) as response:
                     data = bytearray()
                     async for chunk in response.aiter_bytes():
@@ -292,7 +322,15 @@ class AsyncCloneClient(_Options):
 
     async def predict(self, user_id: str, request: Mapping[str, Any]) -> Prediction:
         return _identity(
-            await self._call("/predictions", Prediction, {**request, "user_id": user_id}), request
+            await self._call(
+                "/predictions",
+                Prediction,
+                {**request, "user_id": user_id},
+                timeout=180
+                if any((request.get("artifact") or {}).get(key) for key in ("media", "images"))
+                else None,
+            ),
+            request,
         )
 
     async def record_event(self, user_id: str, event: Mapping[str, Any]) -> EventResult:

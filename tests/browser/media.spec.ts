@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 import { syntheticVideo } from './media-fixture.js';
 
-test('decodes image pixels and video samples from local Blobs without uploading raw files', async ({ page }) => {
+test('prepares image pixels and original video/audio locally with exact source hashes', async ({ page }) => {
   await page.goto('/?fixture=1');
   const result = await page.evaluate(async ({ encoded, modulePath }) => {
-    const { prepareImageArtifact, prepareVideoArtifact } = await import(modulePath);
+    const { prepareImageArtifact, prepareVideoArtifact, prepareAudioArtifact } = await import(modulePath);
     const source = document.createElement('canvas');
     source.width = 160; source.height = 90;
     source.getContext('2d')!.fillStyle = 'blue';
@@ -14,7 +15,16 @@ test('decodes image pixels and video samples from local Blobs without uploading 
     const image = await prepareImageArtifact(blob, { id: 'image', revision: '1' });
     const videoBytes = Uint8Array.from(atob(encoded), value => value.charCodeAt(0));
     const video = await prepareVideoArtifact(new Blob([videoBytes], { type: 'video/mp4' }), { id: 'video', revision: '1' });
-    return { image, video };
+    const wav = new Uint8Array(44 + 16000 * 2);
+    const view = new DataView(wav.buffer);
+    const text = (at: number, value: string) => [...value].forEach((char, index) => view.setUint8(at + index, char.charCodeAt(0)));
+    text(0, 'RIFF'); view.setUint32(4, wav.length - 8, true); text(8, 'WAVE'); text(12, 'fmt ');
+    view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, 16000, true); view.setUint32(28, 32000, true); view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, wav.length - 44, true);
+    for (let index = 0; index < 16000; index++) view.setInt16(44 + index * 2, Math.sin(2 * Math.PI * 440 * index / 16000) * 3000, true);
+    const audio = await prepareAudioArtifact(new Blob([wav], { type: 'audio/wav' }), { id: 'audio', revision: '1' });
+    return { image, video, audio };
   }, { encoded: syntheticVideo, modulePath: '/@fs' + resolve('src/media.ts') });
   expect(result.image.kind).toBe('image');
   expect(result.image.images).toHaveLength(1);
@@ -25,4 +35,11 @@ test('decodes image pixels and video samples from local Blobs without uploading 
   expect(result.video.images.at(-1).timestamp_seconds).toBeGreaterThanOrEqual(3.8);
   expect(result.video.images[0].data).not.toBe(result.video.images.at(-1).data);
   expect(result.video.duration_seconds).toBeCloseTo(4, 1);
+  expect(result.video.media).toHaveLength(1);
+  expect(result.video.media[0].data).toBe(syntheticVideo);
+  expect(result.video.media[0].sha256).toBe(createHash('sha256').update(Buffer.from(syntheticVideo, 'base64')).digest('hex'));
+  expect(result.audio.media).toHaveLength(1);
+  expect(result.audio.media[0].mime_type).toBe('audio/wav');
+  expect(result.audio.media[0].duration_seconds).toBeCloseTo(1, 2);
+  expect(result.audio.media[0].sha256).toBe(createHash('sha256').update(Buffer.from(result.audio.media[0].data, 'base64')).digest('hex'));
 });

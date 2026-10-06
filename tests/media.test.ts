@@ -12,6 +12,22 @@ const input: CompletionRequest = { request_id: 'r', session_id: 's', context_rev
 const output = { status: 'suggested' } as PredictionOutput;
 
 describe('artifact pixel acknowledgement', () => {
+  it('requires a structured report bound to the original native source', async () => {
+    const sha256 = Buffer.from(await crypto.subtle.digest('SHA-256', bytes)).toString('hex');
+    const native: CompletionRequest = { ...input, artifact: { kind: 'video', id: 'v', revision: '1', media: [{
+      ref: 'native', mime_type: 'video/mp4', data: image.data, sha256, duration_seconds: 4,
+    }] } };
+    const receipt = [{ ref: 'native', sha256, timestamp_seconds: null }];
+    await expect(verifyMediaReview(native, { ...output, media_review: receipt }))
+      .rejects.toMatchObject({ code: 'native_media_review_missing' });
+    const report: NonNullable<PredictionOutput['artifact_review']> = { sources: receipt,
+      judgment: { decision: 'approve' }, provider: 'gemini', model: 'fixture', input_tokens: 1,
+      output_tokens: 1, coverage: [], contract_sha256: 'fixture' };
+    await expect(verifyMediaReview(native, { ...output, media_review: receipt, artifact_review: report })).resolves.toBeUndefined();
+    native.artifact!.media![0]!.sha256 = '0'.repeat(64);
+    await expect(verifyMediaReview(native, { ...output, media_review: receipt, artifact_review: report }))
+      .rejects.toMatchObject({ code: 'artifact_source_changed' });
+  });
   it('requires the exact pixel hash, reference, order and timestamp', async () => {
     const hash = await crypto.subtle.digest('SHA-256', bytes);
     const sha256 = Buffer.from(hash).toString('hex');

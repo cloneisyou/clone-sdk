@@ -1,5 +1,5 @@
 from .client import AsyncCloneClient, CloneClient, CloneError, ConnectionFlow
-from .media import image_artifact, video_artifact
+from .media import audio_artifact, image_artifact, video_artifact
 from .models import (
     CancelResult,
     Connection,
@@ -15,6 +15,7 @@ __all__ = [
     "AsyncCloneClient",
     "image_artifact",
     "video_artifact",
+    "audio_artifact",
     "CloneClient",
     "CloneError",
     "ConnectionFlow",
