@@ -4,6 +4,15 @@ Server-side synchronous and asynchronous clients for Clone predictions, usage,
 observation events, cancellation and optional user-approved Clone connections.
 Composer UI stays in the JavaScript SDK. This client never submits a user message.
 
+For selected local artifacts, `image_artifact(path, id="draft", revision="1")` prepares a bounded JPEG/PNG.
+Install the `media` extra from the matching SDK build and call
+`video_artifact(path, id="draft", revision="1")` to decode four timestamped video frames.
+Pass the returned dictionary as the prediction request's `artifact`.
+Preparation is local; only the subsequent explicit prediction uploads selected pixels.
+Both clients reject a media result unless its receipts match the supplied pixels and timestamps.
+This requires the matching API deployment and vision provider configuration.
+Samples do not establish audio, motion, intervening frames or full-playback acceptance.
+
 Python 3.11+. Install `clone-sdk` from [PyPI](https://pypi.org/project/clone-sdk/);
 import `clone_sdk`.
 

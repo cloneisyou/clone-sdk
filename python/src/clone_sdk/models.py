@@ -13,6 +13,12 @@ class PredictionUsage(ResponseModel):
     prediction_units: int = Field(ge=0, le=1)
 
 
+class MediaReceipt(ResponseModel):
+    ref: str
+    sha256: str
+    timestamp_seconds: float | None = None
+
+
 class Prediction(ResponseModel):
     request_id: str
     prediction_id: str
@@ -28,6 +34,7 @@ class Prediction(ResponseModel):
     context_truncated: bool
     usage: PredictionUsage
     feedback_revision: str = ""
+    media_review: list[MediaReceipt] = Field(default_factory=list)
 
 
 class Usage(ResponseModel):

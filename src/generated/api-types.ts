@@ -146,13 +146,17 @@ export interface components {
     schemas: {
         /** ArtifactContext */
         ArtifactContext: {
+            /** Duration Seconds */
+            duration_seconds?: number | null;
             /** Id */
             id: string;
+            /** Images */
+            images?: components["schemas"]["ArtifactImage"][];
             /**
              * Kind
              * @enum {string}
              */
-            kind: "video" | "slides" | "other";
+            kind: "image" | "video" | "slides" | "other";
             /** Revision */
             revision: string;
             /**
@@ -165,6 +169,20 @@ export interface components {
              * @default
              */
             summary?: string;
+        };
+        /** ArtifactImage */
+        ArtifactImage: {
+            /** Data */
+            data: string;
+            /**
+             * Mime Type
+             * @enum {string}
+             */
+            mime_type: "image/jpeg" | "image/png";
+            /** Ref */
+            ref: string;
+            /** Timestamp Seconds */
+            timestamp_seconds?: number | null;
         };
         /** CancelOutput */
         CancelOutput: {
@@ -299,6 +317,15 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** MediaReceipt */
+        MediaReceipt: {
+            /** Ref */
+            ref: string;
+            /** Sha256 */
+            sha256: string;
+            /** Timestamp Seconds */
+            timestamp_seconds?: number | null;
+        };
         /** Message */
         Message: {
             /** Content */
@@ -373,6 +400,8 @@ export interface components {
             feedback_revision?: string;
             /** Grant Revision */
             grant_revision: number;
+            /** Media Review */
+            media_review?: components["schemas"]["MediaReceipt"][];
             /** Prediction Id */
             prediction_id: string;
             /** Profile Revision */

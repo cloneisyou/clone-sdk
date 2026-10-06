@@ -2,6 +2,7 @@ import type { components } from './generated/api-types.js';
 import type { CompletionRequest, PredictionOutput, PredictionEvent } from './types.js';
 import { ClonePredictionError, readResponse } from './http.js';
 import { withDeadline } from './deadline.js';
+import { verifyMediaReview } from './media.js';
 
 export interface ConnectionFlow {
   requestId: string; state: string; codeVerifier: string; redirectUri: string; userId: string;
@@ -46,9 +47,11 @@ export class CloneClient {
     } finally { this.#inFlight--; }
   }
 
-  predict(userId: string, request: CompletionRequest, options: { signal?: AbortSignal } = {}): Promise<PredictionOutput> {
+  async predict(userId: string, request: CompletionRequest, options: { signal?: AbortSignal } = {}): Promise<PredictionOutput> {
     // The authenticated server identity always overwrites any untrusted body user_id.
-    return this.call('/predictions', { ...request, user_id: userId }, options.signal);
+    const output = await this.call<PredictionOutput>('/predictions', { ...request, user_id: userId }, options.signal);
+    await verifyMediaReview(request, output);
+    return output;
   }
   recordEvent(userId: string, event: Omit<PredictionEvent, 'user_id'>): Promise<components['schemas']['EventOutput']> {
     return this.call('/prediction-events', { ...event, user_id: userId });

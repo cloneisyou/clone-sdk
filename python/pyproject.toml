@@ -13,6 +13,9 @@ license-files = ["LICENSE"]
 dependencies = ["httpx>=0.28.1,<1", "pydantic>=2.7,<3"]
 classifiers = ["Programming Language :: Python :: 3", "Typing :: Typed"]
 
+[project.optional-dependencies]
+media = ["av>=16,<18", "numpy>=1.26,<3"]
+
 [project.urls]
 Homepage = "https://clone.is/clone-sdk"
 Repository = "https://github.com/cloneisyou/clone-sdk"

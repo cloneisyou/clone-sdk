@@ -1,6 +1,12 @@
 # Customer context mappings
 
-These are integration examples, not claims about private customer code. Find each value's actual source in that customer's repository. Send concise text summaries, not raw video, images or slide binaries. No visual quality assessment is performed.
+These are integration examples, not claims about private customer code. Find each value's actual source in that customer's repository. Text summaries remain useful context. Image and video artifact review additionally accepts actual bounded pixels through `artifact.images`; a matching `media_review` receipt is required before displaying a prediction. This requires the matching API deployment and server vision credential.
+
+Use `prepareImageArtifact(blob, { id, revision })` or `prepareVideoArtifact(blob, { id, revision })` from the browser SDK. These decode a local file and return artifact context; preparation does not upload anything. The video helper samples four frames with playback timestamps and duration. Your authenticated backend forwards the prediction request as usual. Never put an app key in a browser.
+
+The wire contract accepts at most eight JPEG/PNG images, each at most 480,000 decoded bytes. Video frames require distinct increasing timestamps within a declared duration of at most one hour. Browser source limits are 12 MiB per image and 100 MiB per video; decoded frames are scaled to at most 1,600 pixels on the longest side. Keep the same pixels with the same request ID for replay; changing pixels requires a new request and context revision.
+
+Frame review is sampled visual evidence. Intervening frames, motion, audio and full playback remain uninspected. A model can propose a correction based on visible frames or request the missing verification; it cannot establish complete video acceptance from the samples.
 
 | Contract | Video editor | Slide editor |
 |---|---|---|

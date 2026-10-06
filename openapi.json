@@ -4,14 +4,36 @@
       "ArtifactContext": {
         "additionalProperties": false,
         "properties": {
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 3600.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
           "id": {
             "maxLength": 200,
             "minLength": 1,
             "title": "Id",
             "type": "string"
           },
+          "images": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactImage"
+            },
+            "maxItems": 8,
+            "title": "Images",
+            "type": "array"
+          },
           "kind": {
             "enum": [
+              "image",
               "video",
               "slides",
               "other"
@@ -44,6 +66,50 @@
           "revision"
         ],
         "title": "ArtifactContext",
+        "type": "object"
+      },
+      "ArtifactImage": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "maxLength": 640000,
+            "minLength": 4,
+            "title": "Data",
+            "type": "string"
+          },
+          "mime_type": {
+            "enum": [
+              "image/jpeg",
+              "image/png"
+            ],
+            "title": "Mime Type",
+            "type": "string"
+          },
+          "ref": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Ref",
+            "type": "string"
+          },
+          "timestamp_seconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp Seconds"
+          }
+        },
+        "required": [
+          "ref",
+          "mime_type",
+          "data"
+        ],
+        "title": "ArtifactImage",
         "type": "object"
       },
       "CancelOutput": {
@@ -436,6 +502,36 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "MediaReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "ref": {
+            "title": "Ref",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "timestamp_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp Seconds"
+          }
+        },
+        "required": [
+          "ref",
+          "sha256"
+        ],
+        "title": "MediaReceipt",
+        "type": "object"
+      },
       "Message": {
         "additionalProperties": false,
         "properties": {
@@ -617,6 +713,13 @@
           "grant_revision": {
             "title": "Grant Revision",
             "type": "integer"
+          },
+          "media_review": {
+            "items": {
+              "$ref": "#/components/schemas/MediaReceipt"
+            },
+            "title": "Media Review",
+            "type": "array"
           },
           "prediction_id": {
             "title": "Prediction Id",

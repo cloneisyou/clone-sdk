@@ -95,6 +95,15 @@ def _identity(result: Prediction, request: Mapping[str, Any]) -> Prediction:
     )
     if expected != actual:
         raise CloneError("response_identity_mismatch", 502)
+    images = (request.get("artifact") or {}).get("images") or []
+    if images:
+        expected_media = [
+            (image["ref"], hashlib.sha256(base64.b64decode(image["data"], validate=True)).hexdigest(),
+             image.get("timestamp_seconds")) for image in images
+        ]
+        actual_media = [(item.ref, item.sha256, item.timestamp_seconds) for item in result.media_review]
+        if expected_media != actual_media:
+            raise CloneError("media_review_not_acknowledged", 502)
     if result.status == "abstained" and (result.completion or result.usage.prediction_units):
         raise CloneError("invalid_response", 502)
     return result
