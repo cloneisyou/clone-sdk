@@ -1,3 +1,8 @@
+# 0.8.0 and Python 0.3.0
+
+- Add original video/audio artifact transport, source-bound structured review reports and local audio preparation. Four video frames remain previews. Matching server deployment and an OpenAI credential are required.
+- Use a 180-second default budget for image and native media predictions; preserve normal text-request deadlines and cancellation behavior.
+
 # 0.7.1
 
 - Publish current npm and PyPI install instructions with Python client 0.2.1 and the public SDK quickstart as the npm homepage.

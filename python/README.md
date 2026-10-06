@@ -4,11 +4,21 @@ Server-side synchronous and asynchronous clients for Clone predictions, usage,
 observation events, cancellation and optional user-approved Clone connections.
 Composer UI stays in the JavaScript SDK. This client never submits a user message.
 
+For selected local artifacts, `image_artifact(path, id="draft", revision="1")` prepares a bounded JPEG/PNG.
+The media additions below are unreleased and require the corresponding SDK build and matching API deployment.
+Install the `media` extra from the matching SDK build and call
+`video_artifact(path, id="draft", revision="1")` to prepare the original video/audio and four preview frames, or `audio_artifact(...)` for a selected audio file.
+Pass the returned dictionary as the prediction request's `artifact`.
+Preparation is local; the subsequent explicit prediction uploads selected pixels and original media.
+Both clients reject a media result unless its receipts match the supplied pixels and timestamps.
+This requires matching API deployment and image/audiovisual provider configuration.
+The separate reviewer returns `artifact_review` with findings, time intervals and coverage before prompt prediction. The server uses OpenAI only, with timestamped video frames (up to 48 uniform frames plus detected changes and an end frame), bounded 5fps reinspection, and actual normalized WAV audio (up to 240 seconds per original). Partial extraction cannot produce approval. Actual player playback and every-frame understanding remain separate evidence. Add `artifact["criteria"]` entries with explicit IDs and text; preferences remain optional taste guidance. See [context mappings](../docs/context-mapping.md).
+
 Python 3.11+. Install `clone-sdk` from [PyPI](https://pypi.org/project/clone-sdk/);
 import `clone_sdk`.
 
 ```sh
-python -m pip install clone-sdk==0.2.1
+python -m pip install clone-sdk==0.3.0
 ```
 
 ```python
@@ -33,7 +43,7 @@ with CloneClient(os.environ["CLONE_APP_KEY"]) as client:
 
 For FastAPI or other async servers, use `async with AsyncCloneClient(...)` and
 `await client.predict(...)`. Reuse a client for the application's lifetime and
-close it during shutdown. The async client enforces a total 15-second deadline,
+close it during shutdown. Media predictions automatically use a 180-second budget. For ordinary requests the async client enforces a total 15-second deadline,
 including body reads. The sync client uses 15-second per-I/O timeouts and checks
 the elapsed budget between response chunks. Both bound concurrency to 16 by
 default, reject saturation without queuing, limit response bodies to 1 MiB, and

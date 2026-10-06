@@ -1,4 +1,6 @@
 export { CompletionController } from './controller.js';
+export { artifactImage, prepareImageArtifact, prepareVideoArtifact, prepareAudioArtifact, verifyMediaReview } from './media.js';
+export type { ArtifactContext, ArtifactImage, MediaReceipt, NativeMedia, ArtifactReview } from './media.js';
 export { CloneModeController } from './clone-mode.js';
 export type { CloneModeInput, CloneModeState, CloneModeOptions } from './clone-mode.js';
 export { createPredictionTransport, ClonePredictionError } from './transport.js';

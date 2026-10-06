@@ -1,6 +1,7 @@
 import type { PredictionOutput, PredictionTransport } from './types.js';
 import { readResponse } from './http.js';
 import { ClonePredictionError } from './http.js';
+import { verifyMediaReview } from './media.js';
 export { ClonePredictionError } from './http.js';
 
 /** Host-owned diagnostics. Contains no text, user identifiers or credentials. */
@@ -31,6 +32,7 @@ export function createPredictionTransport(endpoint: string, options: {
       });
       status = response.status;
       const output = await readResponse(response) as PredictionOutput;
+      await verifyMediaReview(input, output);
       if (output.status !== 'suggested' && output.status !== 'abstained') throw new ClonePredictionError('invalid_response', 502);
       outcome = output.status === 'abstained' ? 'abstained' : 'suggested';
       return output;

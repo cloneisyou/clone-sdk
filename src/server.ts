@@ -2,6 +2,7 @@ import type { components } from './generated/api-types.js';
 import type { CompletionRequest, PredictionOutput, PredictionEvent } from './types.js';
 import { ClonePredictionError, readResponse } from './http.js';
 import { withDeadline } from './deadline.js';
+import { verifyMediaReview } from './media.js';
 
 export interface ConnectionFlow {
   requestId: string; state: string; codeVerifier: string; redirectUri: string; userId: string;
@@ -31,7 +32,7 @@ export class CloneClient {
       || !Number.isInteger(this.#limit) || this.#limit < 1 || this.#limit > 1000) throw new Error('Invalid Clone request limits');
   }
 
-  private async call<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  private async call<T>(path: string, body?: unknown, signal?: AbortSignal, timeout = this.#timeout): Promise<T> {
     if (this.#inFlight >= this.#limit) throw new ClonePredictionError('client_capacity_exceeded', 503);
     this.#inFlight++;
     try {
@@ -42,13 +43,16 @@ export class CloneClient {
           body: body === undefined ? undefined : JSON.stringify(body),
         });
         return await readResponse(response) as T;
-      }, this.#timeout, signal);
+      }, timeout, signal);
     } finally { this.#inFlight--; }
   }
 
-  predict(userId: string, request: CompletionRequest, options: { signal?: AbortSignal } = {}): Promise<PredictionOutput> {
+  async predict(userId: string, request: CompletionRequest, options: { signal?: AbortSignal } = {}): Promise<PredictionOutput> {
     // The authenticated server identity always overwrites any untrusted body user_id.
-    return this.call('/predictions', { ...request, user_id: userId }, options.signal);
+    const output = await this.call<PredictionOutput>('/predictions', { ...request, user_id: userId }, options.signal,
+      (request.artifact?.media?.length || request.artifact?.images?.length) ? 180_000 : this.#timeout);
+    await verifyMediaReview(request, output);
+    return output;
   }
   recordEvent(userId: string, event: Omit<PredictionEvent, 'user_id'>): Promise<components['schemas']['EventOutput']> {
     return this.call('/prediction-events', { ...event, user_id: userId });

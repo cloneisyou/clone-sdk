@@ -1,4 +1,5 @@
 from .client import AsyncCloneClient, CloneClient, CloneError, ConnectionFlow
+from .media import audio_artifact, image_artifact, video_artifact
 from .models import (
     CancelResult,
     Connection,
@@ -12,6 +13,9 @@ from .models import (
 
 __all__ = [
     "AsyncCloneClient",
+    "image_artifact",
+    "video_artifact",
+    "audio_artifact",
     "CloneClient",
     "CloneError",
     "ConnectionFlow",
@@ -24,4 +28,4 @@ __all__ = [
     "RevokeResult",
     "Usage",
 ]
-__version__ = "0.2.1"
+__version__ = "0.3.0"

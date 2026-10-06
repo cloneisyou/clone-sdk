@@ -1,6 +1,14 @@
 # Customer context mappings
 
-These are integration examples, not claims about private customer code. Find each value's actual source in that customer's repository. Send concise text summaries, not raw video, images or slide binaries. No visual quality assessment is performed.
+These are integration examples, not claims about private customer code. Find each value's actual source in that customer's repository. Text summaries remain useful context. Image and video artifact review additionally accepts actual bounded pixels through `artifact.images`; a matching `media_review` receipt is required before displaying a prediction. This requires the matching API deployment and server vision credential.
+
+Use `prepareImageArtifact`, `prepareVideoArtifact` or `prepareAudioArtifact` with a selected Blob and `{ id, revision }`. Preparation is local. The video helper returns four preview frames and the original video, including its audio. The subsequent explicit prediction uploads the selected original through your authenticated backend. Never put an app key in a browser.
+
+The wire contract accepts at most eight JPEG/PNG images, each at most 480,000 decoded bytes. Video frames require distinct increasing timestamps within a declared duration of at most one hour. Browser source limits are 12 MiB per image and 100 MiB per video; decoded frames are scaled to at most 1,600 pixels on the longest side. Keep the same pixels with the same request ID for replay; changing pixels requires a new request and context revision.
+
+The matching API runs a separate artifact reviewer before prompt prediction. Native video/audio is decoded server-side for OpenAI: up to 48 uniform timeline frames (at most 1fps), detected change frames and an end frame, with up to four 15-second intervals revisited at 5fps. Actual audio is normalized to mono 16kHz PCM WAV and analyzed in up to four 60-second windows per source. Partial visual or audio extraction remains unverified and cannot approve the artifact. Independent audio violations are retained in the final structured visual report. Artifact review and subsequent prediction use only `OPENAI_API_KEY`. A declared sampling rate does not prove every-frame understanding. Actual player playback and auditory acceptance require separate evidence. `artifact_review` returns criterion findings, source/time references, optional taste suggestions, unverified items and declared coverage. Preferences cannot add completion requirements.
+
+Provide `artifact.criteria` as explicit `{ id, text }` entries. Native inputs live in `artifact.media` with `ref`, MIME type, base64 data, SHA-256, duration and optional diagnostics. At most two original sources and 100 MiB combined are accepted, each no longer than an hour. Media predictions use a 180-second SDK budget by default; text predictions retain their normal timeout. A missing native provider fails explicitly. Matching source receipts acknowledge inputs, not judgment quality. Quality and personalization gains remain unmeasured until evaluated on held-out human-reviewed cases.
 
 | Contract | Video editor | Slide editor |
 |---|---|---|

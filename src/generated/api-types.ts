@@ -146,13 +146,21 @@ export interface components {
     schemas: {
         /** ArtifactContext */
         ArtifactContext: {
+            /** Criteria */
+            criteria?: components["schemas"]["ReviewCriterion"][];
+            /** Duration Seconds */
+            duration_seconds?: number | null;
             /** Id */
             id: string;
+            /** Images */
+            images?: components["schemas"]["ArtifactImage"][];
             /**
              * Kind
              * @enum {string}
              */
-            kind: "video" | "slides" | "other";
+            kind: "image" | "video" | "slides" | "other";
+            /** Media */
+            media?: components["schemas"]["NativeMedia"][];
             /** Revision */
             revision: string;
             /**
@@ -165,6 +173,47 @@ export interface components {
              * @default
              */
             summary?: string;
+        };
+        /** ArtifactImage */
+        ArtifactImage: {
+            /** Data */
+            data: string;
+            /**
+             * Mime Type
+             * @enum {string}
+             */
+            mime_type: "image/jpeg" | "image/png";
+            /** Ref */
+            ref: string;
+            /** Timestamp Seconds */
+            timestamp_seconds?: number | null;
+        };
+        /** ArtifactReview */
+        ArtifactReview: {
+            /**
+             * Cache Hit
+             * @default false
+             */
+            cache_hit?: boolean;
+            /** Contract Sha256 */
+            contract_sha256: string;
+            /** Coverage */
+            coverage: {
+                [key: string]: unknown;
+            }[];
+            /** Input Tokens */
+            input_tokens: number;
+            judgment: components["schemas"]["ReviewJudgment"];
+            /** Model */
+            model: string;
+            /** Output Tokens */
+            output_tokens: number;
+            /** Provider */
+            provider: string;
+            /** Sources */
+            sources: {
+                [key: string]: unknown;
+            }[];
         };
         /** CancelOutput */
         CancelOutput: {
@@ -299,6 +348,15 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** MediaReceipt */
+        MediaReceipt: {
+            /** Ref */
+            ref: string;
+            /** Sha256 */
+            sha256: string;
+            /** Timestamp Seconds */
+            timestamp_seconds?: number | null;
+        };
         /** Message */
         Message: {
             /** Content */
@@ -314,6 +372,23 @@ export interface components {
              * @enum {string}
              */
             role: "user" | "assistant" | "tool";
+        };
+        /** NativeMedia */
+        NativeMedia: {
+            /** Data */
+            data: string;
+            /** Diagnostics */
+            diagnostics?: {
+                [key: string]: unknown;
+            };
+            /** Duration Seconds */
+            duration_seconds: number;
+            /** Mime Type */
+            mime_type: string;
+            /** Ref */
+            ref: string;
+            /** Sha256 */
+            sha256: string;
         };
         /** PredictionInput */
         PredictionInput: {
@@ -354,6 +429,7 @@ export interface components {
         };
         /** PredictionOutput */
         PredictionOutput: {
+            artifact_review?: components["schemas"]["ArtifactReview"] | null;
             /** Completion */
             completion: string;
             /** Connection Id */
@@ -373,6 +449,8 @@ export interface components {
             feedback_revision?: string;
             /** Grant Revision */
             grant_revision: number;
+            /** Media Review */
+            media_review?: components["schemas"]["MediaReceipt"][];
             /** Prediction Id */
             prediction_id: string;
             /** Profile Revision */
@@ -392,6 +470,60 @@ export interface components {
         PredictionUsage: {
             /** Prediction Units */
             prediction_units: number;
+        };
+        /** ReviewCriterion */
+        ReviewCriterion: {
+            /** Id */
+            id: string;
+            /** Text */
+            text: string;
+        };
+        /** ReviewFinding */
+        ReviewFinding: {
+            /** Correction */
+            correction: string;
+            /** Criterion Id */
+            criterion_id: string;
+            /** End Seconds */
+            end_seconds?: number | null;
+            /**
+             * Modality
+             * @enum {string}
+             */
+            modality: "visual" | "motion" | "audio" | "synchronization";
+            /** Observation */
+            observation: string;
+            /** Source Ref */
+            source_ref: string;
+            /** Start Seconds */
+            start_seconds?: number | null;
+        };
+        /** ReviewJudgment */
+        ReviewJudgment: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approve" | "revise" | "request_evidence";
+            /** Findings */
+            findings?: components["schemas"]["ReviewFinding"][];
+            /** Revisit */
+            revisit?: components["schemas"]["ReviewRange"][];
+            /** Suggestions */
+            suggestions?: string[];
+            /** Unverified */
+            unverified?: string[];
+        };
+        /** ReviewRange */
+        ReviewRange: {
+            /** End Seconds */
+            end_seconds: number;
+            /** Reason */
+            reason: string;
+            /** Source Ref */
+            source_ref: string;
+            /** Start Seconds */
+            start_seconds: number;
         };
         /** RevokeOutput */
         RevokeOutput: {
