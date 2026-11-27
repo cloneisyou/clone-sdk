@@ -29,11 +29,14 @@ def test_image_preparation_and_missing_or_changed_receipts_fail_closed(tmp_path)
         _identity(Prediction.model_validate(body), request)
 
 
-def test_video_preparation_samples_actual_opening_and_ending_pixels(tmp_path):
+@pytest.mark.parametrize(
+    ("ext", "mime"), [("mp4", "video/mp4"), ("m4v", "video/x-m4v"), ("avi", "video/x-msvideo")]
+)
+def test_video_preparation_samples_actual_opening_and_ending_pixels(tmp_path, ext, mime):
     av = pytest.importorskip("av")
     np = pytest.importorskip("numpy")
-    path = tmp_path / "draft.mp4"
-    with av.open(str(path), mode="w") as output:
+    path = tmp_path / f"draft.{ext}"
+    with av.open(str(path), mode="w", format="avi" if ext == "avi" else "mp4") as output:
         stream = output.add_stream("mpeg4", rate=10)
         stream.width, stream.height, stream.pix_fmt = 160, 90, "yuv420p"
         for index in range(40):
@@ -45,6 +48,7 @@ def test_video_preparation_samples_actual_opening_and_ending_pixels(tmp_path):
         for packet in stream.encode():
             output.mux(packet)
     artifact = video_artifact(path, id="draft", revision="1")
+    assert artifact["media"][0]["mime_type"] == mime
     assert artifact["duration_seconds"] == 4
     assert len(artifact["images"]) == 4
     assert artifact["images"][0]["timestamp_seconds"] == 0

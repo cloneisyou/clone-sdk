@@ -1,6 +1,6 @@
 {
   "name": "@clone-ai/prompt-prediction",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Context-aware composer suggestions with optional presentation and explicitly started Clone mode.",
   "type": "module",
   "sideEffects": false,
@@ -79,7 +79,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "typescript": "5.9.3",
-    "vite": "8.0.16",
+    "vite": "8.1.6",
     "vitest": "4.1.11"
   },
   "engines": {

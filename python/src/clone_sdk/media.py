@@ -101,9 +101,13 @@ def video_artifact(path: str | Path, *, id: str, revision: str, summary: str = "
                 }
             )
     diagnostics = _scan_source(raw)
-    mime = {".mov": "video/quicktime", ".webm": "video/webm", ".mkv": "video/x-matroska"}.get(
-        source.suffix.lower(), "video/mp4"
-    )
+    mime = {
+        ".mov": "video/quicktime",
+        ".webm": "video/webm",
+        ".mkv": "video/x-matroska",
+        ".m4v": "video/x-m4v",
+        ".avi": "video/x-msvideo",
+    }.get(source.suffix.lower(), "video/mp4")
     return {
         "kind": "video",
         "id": id,
