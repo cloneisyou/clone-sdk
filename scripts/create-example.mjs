@@ -26,6 +26,6 @@ await writeFile(resolve(target, 'tsconfig.json'), JSON.stringify({ compilerOptio
 await writeFile(resolve(target, 'package.json'), JSON.stringify({ name: 'clone-tab-integration-example', private: true, type: 'module',
   scripts: { dev: 'vite --config examples/react/vite.config.ts', build: 'tsc && vite build --config examples/react/vite.config.ts', test: 'playwright test' },
   dependencies: { '@clone-ai/prompt-prediction': 'file:' + resolve(tarball), '@assistant-ui/react': '0.15.21', react: '19.2.4', 'react-dom': '19.2.4' },
-  devDependencies: { vite: '8.0.16', typescript: '5.9.3', '@playwright/test': '1.60.0', '@types/node': '24.12.2', '@types/react': '19.2.14', '@types/react-dom': '19.2.3' },
+  devDependencies: { vite: '8.1.6', typescript: '5.9.3', '@playwright/test': '1.60.0', '@types/node': '24.12.2', '@types/react': '19.2.14', '@types/react-dom': '19.2.3' },
 }, null, 2));
 console.log('Created independent example at', target);
