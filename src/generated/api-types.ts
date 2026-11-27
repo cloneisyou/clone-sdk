@@ -290,6 +290,10 @@ export interface components {
         };
         /** EventInput */
         EventInput: {
+            /** Anchor */
+            anchor?: string | null;
+            /** Artifact Revision */
+            artifact_revision?: string | null;
             /**
              * Content Opt In
              * @default false

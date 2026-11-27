@@ -1,3 +1,7 @@
+# 0.8.1 and Python 0.3.1
+
+- Prediction events accept optional `anchor` and `artifact_revision` identifiers. Media requests accept M4V and AVI MIME types, and the Python video helper reports them for the corresponding file extensions.
+
 # 0.8.0 and Python 0.3.0
 
 - Add original video/audio artifact transport, source-bound structured review reports and local audio preparation. Four video frames remain previews. Matching server deployment and an OpenAI credential are required.
