@@ -29,7 +29,9 @@ def test_image_preparation_and_missing_or_changed_receipts_fail_closed(tmp_path)
         _identity(Prediction.model_validate(body), request)
 
 
-@pytest.mark.parametrize(("ext", "mime"), [("mp4", "video/mp4"), ("m4v", "video/x-m4v"), ("avi", "video/x-msvideo")])
+@pytest.mark.parametrize(
+    ("ext", "mime"), [("mp4", "video/mp4"), ("m4v", "video/x-m4v"), ("avi", "video/x-msvideo")]
+)
 def test_video_preparation_samples_actual_opening_and_ending_pixels(tmp_path, ext, mime):
     av = pytest.importorskip("av")
     np = pytest.importorskip("numpy")
